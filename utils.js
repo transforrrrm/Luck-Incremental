@@ -152,7 +152,7 @@ function drawReward(L) {
     if (L.gte(1e100)) {
         recChance = L;
         if (L.lt('ee6')) recChance = recChance.mul(1 / Math.random());
-        value = erfcinv_asymptotic(u.ln());
+        value = erfcinv_asymptotic(recChance.ln());
     } else {
         const chance = Math.random() / L.toNumber();
         value = new OmegaNum(Math.sqrt(2) * erfcinv(chance));
