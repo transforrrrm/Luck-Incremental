@@ -29,14 +29,24 @@ const elements = {
     hardResetBtn: document.getElementById('hardResetBtn')
 };
 
-const baseCosts = {
-    exponent: 100,
-    sigma: 1500
+const UPGRADES = {
+    exponent: { baseCost: 100, levelRef: 'upgradeExpLevel', onBuy() { } },
+    sigma: {
+        baseCost: 1500, levelRef: 'upgradeSigLevel', onBuy() {
+            state.sigma = state.upgradeSigLevel.add(1).sqrt();
+            if (!state.completedAchievements[0][3]) completeAchievement(1, 4);
+            checkNormalAchievements();
+        }
+    }
 };
 
 let state = defaultGame;
 let pendingReset = 0;
 let lastDrawTime = 0;
+
+let consecutiveBelow2Sigma = 0;
+let saveHistoryTimestamps = [];
+let lastStatsViewTimestamp = 0;
 
 function updateLuckiestRecord(value, recChance) {
     if (recChance.gt(state.luckiestRecord.recChance)) {
@@ -55,13 +65,13 @@ async function performDraw() {
 
     if (!state.completedHiddenAchievements[0][0] && !state.luckyUpgradeUnlocked) {
         if (value.lt(2)) {
-            state.consecutiveBelow2Sigma++;
-            if (state.consecutiveBelow2Sigma >= 22) {
+            consecutiveBelow2Sigma++;
+            if (consecutiveBelow2Sigma >= 22) {
                 completeHiddenAchievement(1, 1);
-                state.consecutiveBelow2Sigma = 0;
+                consecutiveBelow2Sigma = 0;
             }
         } else {
-            state.consecutiveBelow2Sigma = 0;
+            consecutiveBelow2Sigma = 0;
         }
     }
 
@@ -103,59 +113,34 @@ function increaseLucky() {
 }
 
 function purchaseUpgrade(type) {
-    const baseCost = baseCosts[type];
-    let nextLevel;
-    switch (type) {
-        case 'exponent': nextLevel = state.upgradeExpLevel.add(1); break;
-        case 'sigma': nextLevel = state.upgradeSigLevel.add(1); break;
-    }
-    const cost = nextLevel.mul(baseCost);
+    const cfg = UPGRADES[type];
+    const L = state[cfg.levelRef];
+    const cost = L.add(1).mul(cfg.baseCost);
     if (state.luckPoints.lt(cost)) return;
+
     state.luckPoints = state.luckPoints.sub(cost);
-    switch (type) {
-        case 'exponent':
-            state.upgradeExpLevel = nextLevel;
-            break;
-        case 'sigma':
-            state.upgradeSigLevel = nextLevel;
-            state.sigma = nextLevel.add(1).sqrt();
-            if (!state.completedAchievements[0][3]) completeAchievement(1, 4);
-            checkNormalAchievements();
-            break;
-    }
+    state[cfg.levelRef] = L.add(1);
+    if (cfg.onBuy) cfg.onBuy();
     updateUI();
 }
 
 function purchaseMaxUpgrade(type) {
-    const baseCost = baseCosts[type];
-    let L;
-    switch (type) {
-        case 'exponent': L = state.upgradeExpLevel; break;
-        case 'sigma': L = state.upgradeSigLevel; break;
-    }
+    const cfg = UPGRADES[type];
+    const baseCost = cfg.baseCost;
+    const L = state[cfg.levelRef];
     const P = state.luckPoints;
     if (P.lt(L.add(1).mul(baseCost))) return;
 
-    // 解二次方程 k^2 + (2L+1)k - (2P/baseCost) = 0
     const b = L.mul(2).add(1);
     const discriminant = b.mul(b).add(P.mul(8).div(baseCost));
     const sqrtD = discriminant.sqrt();
-    let k = sqrtD.sub(b).div(2).floor();       // 理论最大次数
+    const k = sqrtD.sub(b).div(2).floor();
 
     const finalCost = L.add(k.add(1).div(2)).mul(baseCost).mul(k);
     state.luckPoints = state.luckPoints.sub(finalCost);
-    const finalLevel = L.add(k);
-    switch (type) {
-        case 'exponent':
-            state.upgradeExpLevel = finalLevel;
-            break;
-        case 'sigma':
-            state.upgradeSigLevel = finalLevel;
-            state.sigma = finalLevel.add(1).sqrt();
-            if (!state.completedAchievements[0][3]) completeAchievement(1, 4);
-            checkNormalAchievements();
-            break;
-    }
+    state[cfg.levelRef] = L.add(k);
+
+    if (cfg.onBuy) cfg.onBuy();
     updateUI();
 }
 
@@ -164,7 +149,7 @@ function hardReset() {
     if (pendingReset > 0) elements.hardResetBtn.textContent = `再点击${10 - pendingReset}次`;
     if (pendingReset >= 10) {
         elements.hardResetBtn.textContent = '硬重置';
-        pendingReset = -1000; //防止多次触发重置
+        pendingReset = -1000; // 防止多次触发重置
         localStorage.removeItem(SAVE_KEY);
         showNotification("游戏已重置！");
         setTimeout(() => {
@@ -227,7 +212,17 @@ elements.exponentBtn.onclick = () => purchaseUpgrade('exponent');
 elements.exponentMaxBtn.onclick = () => purchaseMaxUpgrade('exponent');
 elements.sigmaBtn.onclick = () => purchaseUpgrade('sigma');
 elements.sigmaMaxBtn.onclick = () => purchaseMaxUpgrade('sigma');
-document.getElementById('saveGameBtn').onclick = saveGame;
+document.getElementById('saveGameBtn').onclick = () => {
+    const now = Date.now();
+    saveHistoryTimestamps = saveHistoryTimestamps.filter(t => now - t < 30000);
+    saveHistoryTimestamps.push(now);
+    
+    if (!state.completedHiddenAchievements[0][2] && saveHistoryTimestamps.length >= 100) {
+        completeHiddenAchievement(1, 3);
+        saveHistoryTimestamps = [];
+    }
+    saveGame();
+}
 document.getElementById('exportFileBtn').onclick = () => {
     const dataStr = exportJSON();
     const blob = new Blob([dataStr], { type: "application/json" });
@@ -262,6 +257,11 @@ document.getElementById('importBtn').onclick = () => {
     textarea.focus();
     const raw = textarea.value.trim();
     if (raw) {
+        if (raw === "文本" && !state.completedHiddenAchievements[0][7]) {
+            completeHiddenAchievement(1, 8);
+            modal.style.display = 'none';
+            return;
+        }
         try {
             importJSON(raw);
         } catch (e) {
@@ -288,10 +288,14 @@ document.querySelectorAll('.subtab-btn').forEach(btn => {
 
 function initGame() {
     refreshDrawCooldown();
+    elements.hardResetBtn.textContent = '硬重置';
+    pendingReset = 0;
+    lastStatsViewTimestamp = Date.now();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     loadGame();
     initGame();
     initUI();
+    initAchievements();
 });

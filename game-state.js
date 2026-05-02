@@ -16,8 +16,7 @@ const defaultGame = {
     currentTab: 'home',
     currentSubTab: { achievements: 'normal' },
     completedAchievements: [[false, false, false, false, false, false]],
-    completedHiddenAchievements: [[false]],
-    consecutiveBelow2Sigma: 0
+    completedHiddenAchievements: [[false, false, false, false, false, false, false, false]]
 };
 
 const SAVE_KEY = 'LuckyIncrementalSave';

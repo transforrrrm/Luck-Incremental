@@ -81,8 +81,9 @@ function erfcinv(x) {
     return y;
 }
 
+const HALF_LN_PI = 0.5723649429247001;
 function erfcinv_asymptotic(neglnx) {
-    const result = neglnx.sub(neglnx.ln().mul(.5)).sub(0.5 * Math.log(Math.PI)).sqrt();
+    const result = neglnx.sub(neglnx.ln().mul(.5)).sub(HALF_LN_PI).sqrt();
     return result;
 }
 
@@ -119,7 +120,7 @@ function formatNumber(num) {
             else decimals = 0;
 
             const aNum = parseFloat(a.toFixed(decimals));
-            if (a == 10) aNum -= Math.pow(10, -decimals);
+            if (a === 10) aNum -= Math.pow(10, -decimals);
             const formattedA = aNum.toFixed(decimals);
             const newAeb = `${formattedA}e${b}`;
             return str.replace(fullMatch, newAeb);

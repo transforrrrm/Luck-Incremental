@@ -29,13 +29,13 @@ body {
 
 .top-area {
     font-size: 2cqh;
+    text-align: center;
     color: #ffd966;
     border-bottom: 0.3em solid #ffd966;
     box-shadow: inset 0 -0.1em 0.15em rgba(0, 0, 0, 0.3);
 }
 
 .luck-points {
-    margin-left: 25cqh;
     margin-top: 2cqh;
     display: inline-block;
     color: #ffecb3;
@@ -490,6 +490,7 @@ textarea {
 .version {
     position: absolute;
     font-size: 1.5cqh;
+    color: white;
     bottom: 0.5cqh;
     left: 50%;
     transform: translateX(-50%);

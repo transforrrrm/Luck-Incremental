@@ -1,4 +1,3 @@
-// 格式化 OmegaNum
 function updateUI() {
     elements.luckSpan.textContent = formatNumber(state.luckPoints);
     if (state.currentTab === 'home') {
@@ -17,14 +16,14 @@ function updateUI() {
             }
         }
         if (state.sigUpgradeUnlocked) {
-                const level = state.upgradeSigLevel;
-                elements.sigmaSpan.textContent = formatNumber(state.sigma);
-                elements.sigmaName.textContent = `标准差升级(${level})`;
-                elements.sigmaDesc.textContent = `σ×${formatNumber(level.add(1).sqrt())}`;
-                const cost = level.add(1).mul(1500);
-                elements.sigmaBtn.textContent = `花费：${formatNumber(cost)}幸运点`;
-                elements.sigmaBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn' : 'upgrade-btn disabled';
-                elements.sigmaMaxBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn max' : 'upgrade-btn max disabled';
+            const level = state.upgradeSigLevel;
+            elements.sigmaSpan.textContent = formatNumber(state.sigma);
+            elements.sigmaName.textContent = `标准差升级(${level})`;
+            elements.sigmaDesc.textContent = `σ×${formatNumber(level.add(1).sqrt())}`;
+            const cost = level.add(1).mul(1500);
+            elements.sigmaBtn.textContent = `花费：${formatNumber(cost)}幸运点`;
+            elements.sigmaBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn' : 'upgrade-btn disabled';
+            elements.sigmaMaxBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn max' : 'upgrade-btn max disabled';
         }
     }
     if (state.currentTab === 'stats') {
@@ -85,7 +84,7 @@ function initUI() {
         elements.luckBlock.style.display = 'flex';
         elements.luckTitle.textContent = '幸运升级';
     }
-    
+
     if (state.expUpgradeUnlocked) {
         elements.exponentBlock.classList.remove('locked');
     }
@@ -104,9 +103,16 @@ function switchPanel(panelId) {
     document.getElementById(`${panelId}Panel`).classList.remove('hide');
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelector(`.tab-btn[data-panel="${panelId}"]`).classList.add('active');
+    if (panelId !== state.currentTab) {
+        if (pendingReset === 9 && !state.completedHiddenAchievements[0][4]) {
+            completeHiddenAchievement(1, 5);
+        }
+        elements.hardResetBtn.textContent = '硬重置';
+        pendingReset = 0;
+        lastStatsViewTimestamp = Date.now();
+    }
     state.currentTab = panelId;
-    elements.hardResetBtn.textContent = '硬重置';
-    pendingReset = 0;
+    if (state.currentSubTab[panelId]) switchSubTab(state.currentSubTab[panelId]);
     updateUI();
 }
 

@@ -10,7 +10,14 @@ const ACHIEVEMENTS = [
 ];
 const HIDDEN_ACHIEVEMENTS = [
     [
-        { name: '倒霉常数', descUnfinished: '你也够倒霉的。', descFinished: '连续22次抽取没有达到2σ\n概率：1/2.7857, ≈1/e' }
+        { name: '倒霉常数', descUnfinished: '你也够倒霉的。', descFinished: '连续22次抽取没有达到2σ。\n概率：1/2.7857, ≈1/e' },
+        { name: '我免费了', descUnfinished: '我是免费的。', descFinished: '点击这个成就。' },
+        { name: '安全第一', descUnfinished: '它已经够安全了。', descFinished: '在30s内手动保存100次。' },
+        { name: '纯狗运', descUnfinished: '说明你运气很好了。', descFinished: '你每秒有1/100000的概率获得这个成就。' },
+        { name: '就差一点', descUnfinished: '为什么不再点一下？', descFinished: '点击硬重置按钮9次后切换界面。' },
+        { name: '666，开桂了', descUnfinished: '立马停止你的开桂行为！', descFinished: '打开控制台。' },
+        { name: '洋务啥呢？', descUnfinished: '看这玩意干什么？玩游戏去！', descFinished: '盯着统计界面看15min。' },
+        { name: '遵循指令', descUnfinished: '...你确实遵循了指令。', descFinished: '在导入文本时输入"文本"。' }
     ]
 ];
 
@@ -57,3 +64,39 @@ function checkNormalAchievements() {
     }
 }
 
+// 隐藏成就12检测
+function setupAchievementClickHandler() {
+    const hiddenAchContainer = elements.hiddenAch;
+    hiddenAchContainer.addEventListener('click', (e) => {
+        const card = e.target.closest('.ach-card');
+        if (!card) return;
+        const index = card.getAttribute('data-index');
+        if (index === '12' && !state.completedHiddenAchievements[0][1]) {
+            completeHiddenAchievement(1, 2);
+        }
+    });
+}
+
+function checkHiddenAchievements() {
+    setInterval(() => {
+        if (!state.completedHiddenAchievements[0][3]) {
+            if (Math.random() < 1 / 100000) completeHiddenAchievement(1, 4);
+        }
+        if (!state.completedHiddenAchievements[0][5]) {
+            const threshold = 160; // 视口高度差阈值
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            const devtoolsOpen = widthThreshold || heightThreshold;
+            if (devtoolsOpen) completeHiddenAchievement(1, 6);
+        }
+        if (state.currentTab === 'stats' && !state.completedHiddenAchievements[0][6]) {
+            const now = Date.now();
+            if (now - lastStatsViewTimestamp >= 900000) completeHiddenAchievement(1, 7);
+        }
+    }, 1000);
+}
+
+function initAchievements() {
+    setupAchievementClickHandler();
+    checkHiddenAchievements();
+}
