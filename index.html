@@ -31,15 +31,40 @@
         <div id="homePanel" class="panel">
             <button id="drawButton" class="draw-btn">抽取随机数</button>
             <div class="upgrade-area">
-                <div id="luckUpgrade" class="upgrade-title">达到2σ以解锁幸运升级</div>
-                <div class="upgrade-container" id="luckUpgradeBlock" style="display: none;">
-                    <div class="luck-stat">幸运乘数：×<span id="luckyFactorVal">1</span></div>
-                    <button id="increaseLuckyBtn" class="lucky-btn">×1.1</button>
-                    <div class="upgrade locked" id="exponentUpgradeBlock">
-                        <div class="mask">达到10σ后解锁</div>
-                        <div class="upgrade-stat" id="exponentUpgrade">
-                            <div id="exponentUpgradeDesc">幸运升级(0) 每次点击增加的幸运乘数^1</div>
-                            <button id="buyExpUpgradeBtn" class="upgrade-btn disabled">花费：100幸运点</button>
+                <div class="upgrade-item">
+                    <div id="luckUpgrade" class="upgrade-title">达到2σ以解锁幸运升级</div>
+                    <div class="upgrade-container" id="luckUpgradeBlock" style="display: none;">
+                        <div class="luck-stat">幸运乘数：×<span id="luckyFactorVal">1</span></div>
+                        <button id="increaseLuckyBtn" class="lucky-btn">×1.1</button>
+
+                        <div class="upgrade locked" id="expUpgradeBlock">
+                            <div class="mask">达到10σ后解锁</div>
+                            <div class="upgrade-stat">
+                                <div class="upgrade-desc">
+                                    <span class="upgrade-name" id="exponentName">幸运升级(0)</span>
+                                    <span id="exponentDesc">每次点击增加的幸运乘数^1</span>
+                                </div>
+                                <button id="buyExpUpgradeBtn" class="upgrade-btn disabled">花费：100幸运点</button>
+                                <button id="buyMaxExpUpgradeBtn" class="upgrade-btn max disabled">购买最大</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upgrade-item">
+                    <div id="sigmaUpgrade" class="upgrade-title">达到45σ以解锁标准差升级</div>
+                    <div class="upgrade-container" id="sigUpgradeBlock" style="display: none;">
+                        <div class="luck-stat">σ: <span id="sigmaVal">1</span></div>
+
+                        <div class="upgrade">
+                            <div class="upgrade-stat">
+                                <div class="upgrade-desc">
+                                    <span class="upgrade-name" id="sigmaName">标准差升级(0)</span>
+                                    <span id="sigmaDesc">σ×1</span>
+                                </div>
+                                <button id="buySigUpgradeBtn" class="upgrade-btn disabled">花费：1500幸运点</button>
+                                <button id="buyMaxSigUpgradeBtn" class="upgrade-btn max disabled">购买最大</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -76,7 +101,7 @@
                 <button id="saveGameBtn">保存</button>
                 <button id="exportFileBtn">导出文件</button>
                 <button id="importFileInputBtn">导入文件</button>
-                <input type="file" id="importFileInput" style="display:none;" accept=".json">
+                <input type="file" id="importFileInput" style="display: none;" accept=".json">
                 <button id="importFromTextBtn">导入文本</button>
                 <button id="exportToClipBtn">导出到剪贴板</button>
             </div>
@@ -84,6 +109,18 @@
                 <button id="hardResetBtn" class="danger-btn">硬重置</button>
             </div>
         </div>
+
+        <div id="modal" class="modal" style="display: none;">
+            <div class="import-panel">
+                <div class="tip">粘贴 JSON 存档内容：</div>
+                <textarea id="textarea" placeholder="在此粘贴存档字符串..."></textarea>
+                <div class="btn-bar">
+                    <button id="importBtn" class="import-btn">导入</button>
+                    <button id="cancelBtn" class="cancel-btn">取消</button>
+                </div>
+            </div>
+        </div>
+
         <div class="version">v0.0</div>
     </div>
 

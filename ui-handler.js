@@ -8,9 +8,23 @@ function updateUI() {
                 const mult = OmegaNum.pow(1.1, state.upgradeExpLevel.add(1));
                 const level = state.upgradeExpLevel;
                 elements.increaseLuckyBtn.textContent = `×${formatNumber(mult)}`;
-                elements.exponentUpgrade.textContent = `幸运升级(${level}) 每次点击增加的幸运乘数^${formatNumber(level.add(1))}`;
-                elements.exponentBtn.textContent = `花费：${level.add(1).mul(100)}幸运点`;
+                elements.exponentName.textContent = `幸运升级(${level})`;
+                elements.exponentDesc.textContent = `每次点击增加的幸运乘数^${formatNumber(level.add(1))}`;
+                const cost = level.add(1).mul(100);
+                elements.exponentBtn.textContent = `花费：${formatNumber(cost)}幸运点`;
+                elements.exponentBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn' : 'upgrade-btn disabled';
+                elements.exponentMaxBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn max' : 'upgrade-btn max disabled';
             }
+        }
+        if (state.sigUpgradeUnlocked) {
+                const level = state.upgradeSigLevel;
+                elements.sigmaSpan.textContent = formatNumber(state.sigma);
+                elements.sigmaName.textContent = `标准差升级(${level})`;
+                elements.sigmaDesc.textContent = `σ×${formatNumber(level.add(1).sqrt())}`;
+                const cost = level.add(1).mul(1500);
+                elements.sigmaBtn.textContent = `花费：${formatNumber(cost)}幸运点`;
+                elements.sigmaBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn' : 'upgrade-btn disabled';
+                elements.sigmaMaxBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn max' : 'upgrade-btn max disabled';
         }
     }
     if (state.currentTab === 'stats') {
@@ -24,6 +38,7 @@ function updateUI() {
 }
 
 function renderAchievements() {
+    elements.normalAch.innerHTML = '';
     for (let i = 0; i < ACHIEVEMENTS.length; i++) {
         const achRow = ACHIEVEMENTS[i];
         for (let j = 0; j < achRow.length; j++) {
@@ -44,6 +59,7 @@ function renderAchievements() {
 }
 
 function renderHiddenAchievements() {
+    elements.hiddenAch.innerHTML = '';
     for (let i = 0; i < HIDDEN_ACHIEVEMENTS.length; i++) {
         const achRow = HIDDEN_ACHIEVEMENTS[i];
         for (let j = 0; j < achRow.length; j++) {
@@ -69,9 +85,15 @@ function initUI() {
         elements.luckBlock.style.display = 'flex';
         elements.luckTitle.textContent = '幸运升级';
     }
+    
     if (state.expUpgradeUnlocked) {
         elements.exponentBlock.classList.remove('locked');
     }
+    if (state.sigUpgradeUnlocked) {
+        elements.sigmaBlock.style.display = 'flex';
+        elements.sigmaTitle.textContent = '标准差升级';
+    }
+
     renderAchievements();
     renderHiddenAchievements();
     switchPanel(state.currentTab);

@@ -2,7 +2,10 @@ const ACHIEVEMENTS = [
     [
         { name: '3σ原则', desc: '达到3σ。\n每完成一个第一行中的成就，抽取冷却时间/1.1。' },
         { name: '原子幸运', desc: '幸运乘数达到1e80。' },
-        { name: '无限幸运', desc: '幸运乘数达到1.79e308。' }
+        { name: '无限幸运', desc: '幸运乘数达到1.79e308。' },
+        { name: '矮胖曲线', desc: '购买标准差升级。' },
+        { name: '百倍标准差', desc: '达到100σ。' },
+        { name: '这生产线该重建了', desc: 'σ达到10。' }
     ]
 ];
 const HIDDEN_ACHIEVEMENTS = [
@@ -48,6 +51,9 @@ function checkNormalAchievements() {
     }
     if (!state.completedAchievements[0][2] && state.luckyFactor.gte(1.79e308)) {
         completeAchievement(1, 3);
+    }
+    if (!state.completedAchievements[0][5] && state.sigma.gte(10)) {
+        completeAchievement(1, 6);
     }
 }
 

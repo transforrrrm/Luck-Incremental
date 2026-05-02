@@ -5,15 +5,17 @@ const defaultGame = {
     sigma: new OmegaNum(1),
     drawCooldown: 1000,
     upgradeExpLevel: new OmegaNum(0),
+    upgradeSigLevel: new OmegaNum(0),
     luckyUpgradeUnlocked: false,
     expUpgradeUnlocked: false,
+    sigUpgradeUnlocked: false,
     totalLuckPoints: new OmegaNum(0),
     totalDraws: new OmegaNum(0),
     maxSingleReward: new OmegaNum(0),
     luckiestRecord: { value: new OmegaNum(0), recChance: new OmegaNum(0) },
     currentTab: 'home',
     currentSubTab: { achievements: 'normal' },
-    completedAchievements: [[false, false, false]],
+    completedAchievements: [[false, false, false, false, false, false]],
     completedHiddenAchievements: [[false]],
     consecutiveBelow2Sigma: 0
 };

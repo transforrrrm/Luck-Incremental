@@ -118,8 +118,9 @@ function formatNumber(num) {
             else if (b < 100000) decimals = 1;
             else decimals = 0;
 
-            const formattedA = a.toFixed(decimals);
-            if (a == 10) formattedA -= Math.pow(10, -decimals);
+            const aNum = parseFloat(a.toFixed(decimals));
+            if (a == 10) aNum -= Math.pow(10, -decimals);
+            const formattedA = aNum.toFixed(decimals);
             const newAeb = `${formattedA}e${b}`;
             return str.replace(fullMatch, newAeb);
         }
