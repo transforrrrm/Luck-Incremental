@@ -28,11 +28,28 @@ body {
 }
 
 .top-area {
+    position: relative; 
     font-size: 2cqh;
     text-align: center;
     color: #ffd966;
     border-bottom: 0.3em solid #ffd966;
     box-shadow: inset 0 -0.1em 0.15em rgba(0, 0, 0, 0.3);
+}
+
+.prestige-header {
+    position: absolute;
+    left: 4cqh;
+    bottom: 5cqh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5cqh;
+}
+
+.prestige-btn {
+    height: 10cqh;
+    aspect-ratio: 3;
+    border-radius: 1cqh;
 }
 
 .luck-points {
@@ -75,7 +92,8 @@ body {
     font-size: 3cqh;
 }
 
-.tab-btn.active {
+.tab-btn.active,
+.tab-btn:hover {
     background: #ffb347;
     color: #1e2a32;
     box-shadow: 0 0 0.2em #ffb347;
@@ -90,10 +108,6 @@ body {
     color: #f0f3f8;
 }
 
-.panel.hide {
-    display: none;
-}
-
 .draw-btn {
     width: 18%;
     aspect-ratio: 2;
@@ -101,12 +115,11 @@ body {
     background-color: #ccc;
     border: 0.15em solid #fff;
     box-shadow: 0 0.1em 0 #999;
-    transition: 0.2s;
-
 }
 
-.draw-btn:active {
-    box-shadow: inset 0 0.1em 0.2em rgba(0,0,0,0.3);
+.draw-btn:active,
+.draw-btn:hover {
+    box-shadow: inset 0 0.1em 0.2em rgba(0, 0, 0, 0.3);
     background-color: #ffeebb;
 }
 
@@ -120,7 +133,7 @@ body {
 .upgrade-area {
     margin-top: 5cqh;
     display: grid;
-    grid-template-columns: 1fr 1fr;  
+    grid-template-columns: 1fr 1fr;
     gap: 5cqh;
 }
 
@@ -212,6 +225,7 @@ button {
     color: white;
     border-radius: 10%;
     cursor: pointer;
+    transition: 0.2s;
 }
 
 button.disabled {
@@ -224,6 +238,11 @@ button.disabled {
     border-radius: 1cqh;
     font-size: 1em;
     background: #f0a34b;
+}
+
+.upgrade-btn:not(.disabled):hover {
+    background: #f5f5f5;
+    color: black;
 }
 
 .upgrade-btn.max {
@@ -240,19 +259,36 @@ button.disabled {
     border-color: #b01500;
 }
 
-.stats-grid {
-    display: grid;
+.prestige {
+    color: #2890e0;
+}
+
+button.prestige {
+    background-color: #bbb;
+    border-color: #004172;
+}
+
+button.prestige.active,
+button.prestige:hover {
+    background-color: #2890e0;
+    color: white;
+}
+
+.stats-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     font-size: 1.3em;
-    grid-template-columns: 1fr;
 }
 
-.total-title {
+.stats-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title {
     font-size: 2em;
-    justify-self: center;
-}
-
-.stat-card {
-    justify-self: start;
 }
 
 .ach-grid {
@@ -276,7 +312,8 @@ button.disabled {
     border: 0.15em solid #888;
 }
 
-.subtab-btn.active {
+.subtab-btn.active,
+.subtab-btn:hover {
     background: #ffb347;
     color: #1e2a32;
     box-shadow: 0 0 0.2em #ffb347;
@@ -286,10 +323,6 @@ button.disabled {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.subtab.hide {
-    display: none;
 }
 
 .ach-card {
@@ -316,6 +349,7 @@ button.disabled {
 
 .ach-name {
     font-size: 1.4em;
+    text-align: center;
 }
 
 .ach-index {
@@ -431,7 +465,7 @@ button.disabled {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.85);
+    background-color: rgba(0, 0, 0, 0.85);
     z-index: 2000;
     display: flex;
     align-items: center;
@@ -444,7 +478,7 @@ button.disabled {
     border-radius: 2cqh;
     min-width: 60%;
     max-width: 90%;
-    box-shadow: 0 0 2cqh rgba(0,0,0,0.5);
+    box-shadow: 0 0 2cqh rgba(0, 0, 0, 0.5);
 }
 
 .tip {
@@ -487,11 +521,88 @@ textarea {
     padding: 0.5cqh 2cqh;
 }
 
+.progress-bar-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3cqh;
+    background: #1e2a32;
+    border-top: 0.1em solid #ffd966;
+    box-sizing: content-box;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #6a994e;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+.progress-text {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffecb3;
+    font-size: 2.2cqh;
+    line-height: 3cqh;
+}
+
 .version {
     position: absolute;
     font-size: 1.5cqh;
     color: white;
-    bottom: 0.5cqh;
+    bottom: 4cqh;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.prestige-essence {
+    color: #ffecb3;
+    font-size: 1.6cqh;
+}
+
+.prestige-essence span {
+    font-weight: bold;
+    color: #ffd966;
+}
+
+.prestige-tab-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2cqh;
+}
+
+.luck-gen-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1cqh;
+    font-size: 1.8cqh;
+}
+
+.generator-controls {
+    display: flex;
+    gap: 1cqh;
+}
+
+.gen-locked {
+    font-size: 2cqh;
+    color: #b9d0e7;
+}
+
+.invest-input {
+    width: 8cqh;
+    font-size: 1.8cqh;
+    background: #333;
+    color: white;
+    border: 0.15em solid #999;
+    border-radius: 0.5cqh;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
 }

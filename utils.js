@@ -87,11 +87,11 @@ function erfcinv_asymptotic(neglnx) {
     return result;
 }
 
+const EXP_FORMAT_PATTERN = /(\d*\.?\d+)?(e)([+-]?\d*\.?\d+)$/;
 function formatNumber(num) {
     if (num.gte(1e6)) {
         const str = num.toStringWithDecimalPlaces(6, true);
-        const pattern = /(\d*\.?\d+)?(e)([+-]?\d*\.?\d+)$/;
-        const match = str.match(pattern);
+        const match = str.match(EXP_FORMAT_PATTERN);
 
         if (!match) return str;
 
@@ -149,16 +149,15 @@ function formatTime(t) {
 }
 
 // 截断抽样：从半正态分布的顶部 1/L 部分抽取
-function drawReward(L) {
-    let recChance, value;
-    if (L.gte(1e100)) {
-        recChance = L;
-        if (L.lt('ee6')) recChance = recChance.mul(1 / Math.random());
-        value = erfcinv_asymptotic(recChance.ln());
-    } else {
-        const chance = Math.random() / L.toNumber();
-        value = new OmegaNum(Math.sqrt(2) * erfcinv(chance));
-        recChance = new OmegaNum(1 / chance);
+const SQRT2 = Math.sqrt(2);
+function drawReward(L, e = new OmegaNum(0), v = new OmegaNum(0)) {
+    const exp = e.div(5).add(1).mul(v).add(1);
+    let recChance = L.mul(L.lt('ee6') ? 1 / Math.max(Math.random(), Math.pow(2, -53)) : 1).pow(exp);
+    let value;
+    if (recChance.gte(1e100)) value = erfcinv_asymptotic(recChance.ln()).mul(SQRT2);
+    else {
+        let chance = 1 / recChance.toNumber();
+        value = new OmegaNum(SQRT2 * erfcinv(chance));
     }
     return { value: value, recChance: recChance };
 }

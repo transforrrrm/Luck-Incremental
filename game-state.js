@@ -1,22 +1,40 @@
-const defaultGame = {
-    gameTime: new OmegaNum(0),
+const DEFAULT_GAME = {
+    gameTime: 0,
     luckPoints: new OmegaNum(0),
     luckyFactor: new OmegaNum(1),
-    sigma: new OmegaNum(1),
     drawCooldown: 1000,
     upgradeExpLevel: new OmegaNum(0),
     upgradeSigLevel: new OmegaNum(0),
     luckyUpgradeUnlocked: false,
     expUpgradeUnlocked: false,
     sigUpgradeUnlocked: false,
+
+    hasPrestiged: false,
+    luckyEssence: new OmegaNum(0),
+    luckGeneratorUnlocked: false,
+    investedEssence: new OmegaNum(0),
+    luckValue: new OmegaNum(0),
+
     totalLuckPoints: new OmegaNum(0),
     totalDraws: new OmegaNum(0),
     maxSingleReward: new OmegaNum(0),
     luckiestRecord: { value: new OmegaNum(0), recChance: new OmegaNum(0) },
+    prestigeCount: new OmegaNum(0),
+    totalLuckEssence: new OmegaNum(0),
+    maxSingleEssence: new OmegaNum(0),
+    fastestPrestige: Infinity,
+    timeSincePrestige: 0,
+    luckiestThisPrestige: { value: new OmegaNum(0), recChance: new OmegaNum(0) },
     currentTab: 'home',
     currentSubTab: { achievements: 'normal' },
-    completedAchievements: [[false, false, false, false, false, false]],
-    completedHiddenAchievements: [[false, false, false, false, false, false, false, false]]
+    completedAchievements: [
+        [false, false, false, false, false, false, false, false],
+        [false, false, false, false, false]
+    ],
+    completedHiddenAchievements: [
+        [false, false, false, false, false, false, false, false],
+        [false]
+    ]
 };
 
 const SAVE_KEY = 'LuckyIncrementalSave';
@@ -31,7 +49,7 @@ function loadGame() {
     if (!raw) return;
     try {
         const data = convertToOmegaNum(JSON.parse(atob(raw)));
-        state = deepMerge(defaultGame, data);
+        state = deepMerge(DEFAULT_GAME, data);
     } catch (e) {
         console.warn(e);
     }

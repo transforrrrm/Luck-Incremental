@@ -10,30 +10,39 @@
 </head>
 
 <body>
-    <div class="game-container">
+    <div id="gameContainer" class="game-container">
         <div class="top-area">
-            <div class="luck-points">你有<span id="luckValue">0</span>幸运点</div>
+            <div class="prestige-header">
+                <div class="lucky-essence" id="luckyEssenceDisplay" style="display: none;">
+                    你有<span id="luckyEssenceVal">0</span>幸运精华
+                </div>
+                <button id="prestigeBtn" class="prestige-btn prestige">达到140σ</button>
+            </div>
+            <div class="center-stack">
+                <div class="luck-points">你有<span id="luckValue">0</span>幸运点</div>
             <div class="draw-result">
                 <div class="line1">你抽到了</div>
                 <div class="line2" id="lastDrawDisplay">—</div>
             </div>
+            </div>
         </div>
 
-        <div id="notification-area" class="notification-area"></div>
+        <div id="notificationArea" class="notification-area"></div>
 
         <div class="tab-area">
             <button class="tab-btn active" data-panel="home">主页</button>
+            <button id="prestigeTab" class="tab-btn prestige hidden" data-panel="prestige">推进</button>
             <button class="tab-btn" data-panel="stats">统计</button>
             <button class="tab-btn" data-panel="achievements">成就</button>
             <button class="tab-btn" data-panel="settings">设置</button>
         </div>
 
         <div id="homePanel" class="panel">
-            <button id="drawButton" class="draw-btn">抽取随机数</button>
+            <button id="drawBtn" class="draw-btn">抽取随机数</button>
             <div class="upgrade-area">
                 <div class="upgrade-item">
                     <div id="luckUpgrade" class="upgrade-title">达到2σ以解锁幸运升级</div>
-                    <div class="upgrade-container" id="luckUpgradeBlock" style="display: none;">
+                    <div class="upgrade-container hidden" id="luckUpgradeBlock">
                         <div class="luck-stat">幸运乘数：×<span id="luckyFactorVal">1</span></div>
                         <button id="increaseLuckyBtn" class="lucky-btn">×1.1</button>
 
@@ -53,7 +62,7 @@
 
                 <div class="upgrade-item">
                     <div id="sigmaUpgrade" class="upgrade-title">达到45σ以解锁标准差升级</div>
-                    <div class="upgrade-container" id="sigUpgradeBlock" style="display: none;">
+                    <div class="upgrade-container hidden" id="sigUpgradeBlock">
                         <div class="luck-stat">σ: <span id="sigmaVal">1</span></div>
 
                         <div class="upgrade">
@@ -71,18 +80,53 @@
             </div>
         </div>
 
-        <div id="statsPanel" class="panel hide">
-            <div class="stats-grid">
-                <div class="total-title">总计</div>
-                <div class="stat-card">游戏时间: <span id="gameTime">0s</span></div>
-                <div class="stat-card">总共获取的幸运点: <span id="totalLuck">0</span></div>
-                <div class="stat-card">单次最高获取的幸运点: <span id="maxSingle">0</span></div>
-                <div class="stat-card">最幸运抽取: <span id="luckiestRecord">-</span></div>
-                <div class="stat-card">总抽取次数: <span id="totalDraws">0</span></div>
+        <div id="prestigePanel" class="panel hidden">
+            <div class="prestige-tab-content">
+                <div id="luckGeneratorBlock" class="luck-gen-block hidden">
+                    <div id="luckGenerator" class="upgrade-title">幸运生成器</div>
+                    <div>你已投入了<span id="investedEssenceVal" class="prestige">0</span>幸运精华</div>
+                    <div>
+                        你有<span id="luckValueDisplay">0</span>幸运值<span id="luckValueDecrease">(-0.05/s)</span>，
+                        使抽取概率^<span id="luckValueEffect">1</span>
+                    </div>
+                    <div>幸运值每秒有5%的概率增加1点</div>
+                    <div class="generator-controls">
+                        <span>投入数量：</span>
+                        <input id="investAmountInput" value="1" class="invest-input">
+                        <button id="investBtn">投入</button>
+                        <button id="investAllBtn">投入全部</button>
+                    </div>
+                </div>
+                <button id="generatorLocked" class="gen-locked">解锁幸运生成器\n花费：1幸运精华</button>
             </div>
         </div>
 
-        <div id="achievementsPanel" class="panel hide">
+        <div id="statsPanel" class="panel hidden">
+            <div class="stats-area">
+                <div class="stats-item">
+                    <div class="title">总计</div>
+                    <div>你一共玩了 <span id="gameTime">0s</span></div>
+                    <div>你总共获取了 <span id="totalLuck">0</span> 幸运点</div>
+                    <div>你单次最多获取 <span id="maxSingle">0</span> 幸运点</div>
+                    <div>你最幸运的抽取是 <span id="luckiestRecord">-</span></div>
+                    <div>你总共抽取了 <span id="totalDraws">0</span> 次</div>
+                    <div id="luckyFactorDesc"></div>
+                </div>
+
+                <div id="prestigeStat" class="stats-item hidden">
+                    <div class="title prestige">推进</div>
+                    <div>你一共重置了 <span id="prestigeCount">0</span>次</div>
+                    <div>你总共获取了 <span id="totalEssence">0</span> 幸运精华</div>
+                    <div>你单次最多获取 <span id="maxSingleEssence">0</span> 幸运精华</div>
+                    <div>你最快的重置是 <span id="fastestPrestige">0s</span></div>
+                    <div>本次重置中你最幸运的抽取是 <span id="luckiestThisPrestige">-</span></div>
+                    <div>自上次重置以来过了 <span id="timeSincePrestige">0s</span></div>
+                    <div id="luckyFactorDesc"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="achievementsPanel" class="panel hidden">
             <div class="subtab-area">
                 <button class="subtab-btn active" data-subtab="normal">成就</button>
                 <button class="subtab-btn" data-subtab="hidden">隐藏成就</button>
@@ -90,13 +134,13 @@
             <div id="normalAchievementsPanel" class="subtab">
                 <div id="normalAch" class="ach-grid"></div>
             </div>
-            <div id="hiddenAchievementsPanel" class="subtab hide">
+            <div id="hiddenAchievementsPanel" class="subtab hidden">
                 <div id="hiddenAch" class="ach-grid"></div>
             </div>
 
         </div>
 
-        <div id="settingsPanel" class="panel hide">
+        <div id="settingsPanel" class="panel hidden">
             <div class="setting-row">
                 <button id="saveGameBtn">保存</button>
                 <button id="exportFileBtn">导出文件</button>
@@ -110,7 +154,7 @@
             </div>
         </div>
 
-        <div id="modal" class="modal" style="display: none;">
+        <div id="modal" class="modal hidden">
             <div class="import-panel">
                 <div class="tip">粘贴 JSON 存档内容：</div>
                 <textarea id="textarea" placeholder="在此粘贴存档字符串..."></textarea>
@@ -121,13 +165,19 @@
             </div>
         </div>
 
-        <div class="version">v0.0.2</div>
+        <div id="progressBarContainer" class="progress-bar-container">
+            <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+            <div id="progressText" class="progress-text">达到140σ以解锁推进(0%)</div>
+        </div>
+
+        <div class="version">v0.1</div>
     </div>
 
     <script src="utils.js"></script>
     <script src="game-state.js"></script>
     <script src="ui-handler.js"></script>
     <script src="achievements.js"></script>
+    <script src="prestige.js"></script>
     <script src="main.js"></script>
 </body>
 
