@@ -86,7 +86,7 @@ async function performDraw() {
         state.expUpgradeUnlocked = true;
         elements.expUpgradeBlock.classList.remove('locked');
     }
-    if (!state.sigUpgradeUnlocked && value.gte(45)) {
+    if (!state.sigUpgradeUnlocked && value.gte(80)) {
         state.sigUpgradeUnlocked = true;
         elements.sigUpgradeBlock.classList.remove('hidden');
         elements.sigmaUpgrade.textContent = '标准差升级';
@@ -301,6 +301,11 @@ elements.gameContainer.addEventListener('click', (e) => {
     } else if (btn.classList.contains('subtab-btn')) {
         switchSubTab(btn.dataset.subtab);
     }
+});
+
+const input = elements.investAmountInput;
+input.addEventListener('input', () => {
+    input.style.width = input.value.length * 0.75 + 0.25 + 'em';
 });
 
 function initGame() {

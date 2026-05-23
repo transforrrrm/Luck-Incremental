@@ -1,17 +1,18 @@
 function updateUI() {
     const now = Date.now();
+    elements.luckyEssenceVal.textContent = formatNumber(state.luckyEssence);
     elements.luckValue.textContent = formatNumber(state.luckPoints);
     const maxSigma = state.luckiestThisPrestige.value;
-    if (maxSigma.gte(140)) {
-        const essenceGain = maxSigma.sub(40).div(100).sqrt().floor();
+    if (maxSigma.gte(280)) {
+        const essenceGain = maxSigma.sub(80).div(200).sqrt().floor();
         let text = `重置以获得${essenceGain}幸运精华`;
         if (essenceGain.lt(100)) {
-            const nextThreshold = essenceGain.add(1).pow(2).mul(100).add(40);
+            const nextThreshold = essenceGain.add(1).pow(2).mul(200).add(80);
             text += `\n下一个在：${nextThreshold}σ`;
         }
         elements.prestigeBtn.textContent = text;
     } else {
-        elements.prestigeBtn.textContent = '达到140σ';
+        elements.prestigeBtn.textContent = '达到280σ';
     }
     updateProgressBar();
     if (state.currentTab === 'home') {
@@ -46,8 +47,8 @@ function updateUI() {
     if (state.currentTab === 'prestige') {
         if (state.luckGeneratorUnlocked) {
             elements.investedEssenceVal.textContent = state.investedEssence;
-            const val = state.luckValue
-            elements.luckValueDisplay.textContent = val;
+            const val = state.luckValue;
+            elements.luckValueDisplay.textContent = formatNumber(val);
             elements.luckValueDecrease.textContent = val.eq(0) ? '' : '(-0.05/s)';
             const e = state.investedEssence;
             const v = state.luckValue;
@@ -82,13 +83,13 @@ function updateUI() {
 
 function updateProgressBar() {
     const maxVal = state.luckiestRecord.value;
-    const threshold = 140;
+    const threshold = 280;
     const percent = maxVal.div(threshold).min(1);
     elements.progressFill.style.width = `${percent.toNumber() * 100}%`;
     if (state.hasPrestiged) {
         elements.progressText.textContent = '所有功能已解锁！';
     } else {
-        elements.progressText.innerHTML = `达到140σ以解锁<span class="prestige">推进</span>(${formatNumber(percent.mul(100))}%)`;
+        elements.progressText.innerHTML = `达到280σ以解锁<span class="prestige">推进</span>(${formatNumber(percent.mul(100))}%)`;
     }
 }
 
@@ -151,7 +152,7 @@ function initUI() {
     if (state.hasPrestiged) {
         elements.luckyEssenceDisplay.classList.remove('hidden');
         elements.prestigeBtn.classList.remove('hidden');
-        elements.prestigePanel.classList.remove('hidden');
+        elements.prestigeTab.classList.remove('hidden');
         elements.prestigeStat.classList.remove('hidden');
         if (state.luckGeneratorUnlocked) {
             elements.generatorLocked.classList.add('hidden');

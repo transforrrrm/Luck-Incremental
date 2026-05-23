@@ -1,7 +1,7 @@
 function performPrestige() {
     const maxSigma = state.luckiestThisPrestige.value;
-    if (maxSigma.lt(140)) return;
-    const essenceGain = maxSigma.sub(40).div(100).sqrt().floor();
+    if (maxSigma.lt(280)) return;
+    const essenceGain = maxSigma.sub(80).div(200).sqrt().floor();
     state.luckyEssence = state.luckyEssence.add(essenceGain);
     state.totalLuckEssence = state.totalLuckEssence.add(essenceGain);;
     state.maxSingleEssence = state.maxSingleEssence.max(essenceGain);
@@ -24,7 +24,7 @@ function performPrestige() {
         state.hasPrestiged = true;
         elements.luckyEssenceDisplay.classList.remove('hidden');
         elements.prestigeBtn.classList.remove('hidden');
-        elements.prestigePanel.classList.remove('hidden');
+        elements.prestigeTab.classList.remove('hidden');
         elements.prestigeStat.classList.remove('hidden');
     }
 

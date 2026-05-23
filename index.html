@@ -13,17 +13,17 @@
     <div id="gameContainer" class="game-container">
         <div class="top-area">
             <div class="prestige-header">
-                <div class="lucky-essence" id="luckyEssenceDisplay" style="display: none;">
-                    你有<span id="luckyEssenceVal">0</span>幸运精华
+                <div class="prestige hidden" id="luckyEssenceDisplay">
+                    你有 <span class="lucky-essence" id="luckyEssenceVal">0</span> 幸运精华
                 </div>
-                <button id="prestigeBtn" class="prestige-btn prestige">达到140σ</button>
+                <button id="prestigeBtn" class="prestige-btn prestige">达到280σ</button>
             </div>
             <div class="center-stack">
-                <div class="luck-points">你有<span id="luckValue">0</span>幸运点</div>
-            <div class="draw-result">
-                <div class="line1">你抽到了</div>
-                <div class="line2" id="lastDrawDisplay">—</div>
-            </div>
+                <div class="luck-points">你有 <span id="luckValue">0</span> 幸运点</div>
+                <div class="draw-result">
+                    <div class="line1">你抽到了</div>
+                    <div class="line2" id="lastDrawDisplay">—</div>
+                </div>
             </div>
         </div>
 
@@ -61,7 +61,7 @@
                 </div>
 
                 <div class="upgrade-item">
-                    <div id="sigmaUpgrade" class="upgrade-title">达到45σ以解锁标准差升级</div>
+                    <div id="sigmaUpgrade" class="upgrade-title">达到80σ以解锁标准差升级</div>
                     <div class="upgrade-container hidden" id="sigUpgradeBlock">
                         <div class="luck-stat">σ: <span id="sigmaVal">1</span></div>
 
@@ -81,24 +81,22 @@
         </div>
 
         <div id="prestigePanel" class="panel hidden">
-            <div class="prestige-tab-content">
-                <div id="luckGeneratorBlock" class="luck-gen-block hidden">
-                    <div id="luckGenerator" class="upgrade-title">幸运生成器</div>
-                    <div>你已投入了<span id="investedEssenceVal" class="prestige">0</span>幸运精华</div>
-                    <div>
-                        你有<span id="luckValueDisplay">0</span>幸运值<span id="luckValueDecrease">(-0.05/s)</span>，
-                        使抽取概率^<span id="luckValueEffect">1</span>
-                    </div>
-                    <div>幸运值每秒有5%的概率增加1点</div>
-                    <div class="generator-controls">
-                        <span>投入数量：</span>
-                        <input id="investAmountInput" value="1" class="invest-input">
-                        <button id="investBtn">投入</button>
-                        <button id="investAllBtn">投入全部</button>
-                    </div>
+            <div id="luckGeneratorBlock" class="luck-gen-block hidden">
+                <div id="luckGenerator" class="luck-gen-title">幸运生成器</div>
+                <div>你已投入了<span id="investedEssenceVal" class="prestige">0</span>幸运精华</div>
+                <div>
+                    你有<span id="luckValueDisplay" class="prestige">0</span>幸运值<span id="luckValueDecrease" class="prestige">(-0.05/s)</span>，
+                    使抽取概率^<span id="luckValueEffect" class="prestige">1</span>
                 </div>
-                <button id="generatorLocked" class="gen-locked">解锁幸运生成器\n花费：1幸运精华</button>
+                <div>幸运值每秒有5%的概率增加1点</div>
+                <div class="generator-controls">
+                    <span>投入数量 :</span>
+                    <input id="investAmountInput" value="1" class="invest-input">
+                    <button id="investBtn" class="invest-btn prestige">投入</button>
+                    <button id="investAllBtn" class="invest-btn prestige">投入全部</button>
+                </div>
             </div>
+            <button id="generatorLocked" class="gen-locked prestige">解锁幸运生成器<br>花费：1幸运精华</button>
         </div>
 
         <div id="statsPanel" class="panel hidden">
@@ -118,7 +116,7 @@
                     <div>你一共重置了 <span id="prestigeCount">0</span>次</div>
                     <div>你总共获取了 <span id="totalEssence">0</span> 幸运精华</div>
                     <div>你单次最多获取 <span id="maxSingleEssence">0</span> 幸运精华</div>
-                    <div>你最快的重置是 <span id="fastestPrestige">0s</span></div>
+                    <div>你最快的重置是 <span id="fastestPrestige">-</span></div>
                     <div>本次重置中你最幸运的抽取是 <span id="luckiestThisPrestige">-</span></div>
                     <div>自上次重置以来过了 <span id="timeSincePrestige">0s</span></div>
                     <div id="luckyFactorDesc"></div>
@@ -145,7 +143,7 @@
                 <button id="saveGameBtn">保存</button>
                 <button id="exportFileBtn">导出文件</button>
                 <button id="importFileInputBtn">导入文件</button>
-                <input type="file" id="importFileInput" style="display: none;" accept=".json">
+                <input type="file" class="hidden" id="importFileInput" accept=".json">
                 <button id="importFromTextBtn">导入文本</button>
                 <button id="exportToClipBtn">导出到剪贴板</button>
             </div>
@@ -167,7 +165,7 @@
 
         <div id="progressBarContainer" class="progress-bar-container">
             <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
-            <div id="progressText" class="progress-text">达到140σ以解锁推进(0%)</div>
+            <div id="progressText" class="progress-text">达到280σ以解锁推进(0%)</div>
         </div>
 
         <div class="version">v0.1</div>

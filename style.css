@@ -28,7 +28,7 @@ body {
 }
 
 .top-area {
-    position: relative; 
+    position: relative;
     font-size: 2cqh;
     text-align: center;
     color: #ffd966;
@@ -39,17 +39,24 @@ body {
 .prestige-header {
     position: absolute;
     left: 4cqh;
-    bottom: 5cqh;
+    bottom: 3cqh;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.5cqh;
 }
 
+.lucky-essence {
+    font-weight: bold;
+    color: #2b83ff;
+    font-family: monospace;
+}
+
 .prestige-btn {
     height: 10cqh;
     aspect-ratio: 3;
     border-radius: 1cqh;
+    white-space: pre-line;
 }
 
 .luck-points {
@@ -61,7 +68,6 @@ body {
 .luck-points span {
     font-weight: 800;
     color: #ffd966;
-    margin: 0 1cqh;
     font-family: monospace;
 }
 
@@ -71,12 +77,12 @@ body {
 }
 
 .draw-result .line1 {
-    font-size: 1.5em;
+    font-size: 1.3em;
     color: #b9d0e7;
 }
 
 .draw-result .line2 {
-    font-size: 3em;
+    font-size: 2.2em;
     font-weight: bold;
     font-family: 'Courier New', monospace;
 }
@@ -145,7 +151,7 @@ body {
 }
 
 .upgrade-title {
-    font-size: 2em;
+    font-size: 3cqh;
     color: #b9d0e7;
 }
 
@@ -265,13 +271,59 @@ button.disabled {
 
 button.prestige {
     background-color: #bbb;
-    border-color: #004172;
+    border-color: #0081e4;
 }
 
 button.prestige.active,
 button.prestige:hover {
     background-color: #2890e0;
     color: white;
+}
+
+.gen-locked {
+    width: 15%;
+    aspect-ratio: 2;
+    font-size: 2em;
+}
+
+.luck-gen-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5cqh;
+    font-size: 1.8cqh;
+}
+
+.luck-gen-title {
+    font-size: 3cqh;
+    color: #b9d0e7;
+    margin-bottom: 1.5cqh;
+}
+
+.generator-controls {
+    display: flex;
+    align-items: center;
+    height: 4cqh;
+    gap: 1cqh;
+}
+
+.invest-input {
+    height: 100%;
+    box-sizing: border-box;
+    width: 1em;
+    min-width: 1em;
+    max-width: 6em;
+    font-size: 1.8cqh;
+    margin-right: 1cqh;
+    background: #333;
+    color: white;
+    border: 0.15em solid #999;
+    border-radius: 0.5cqh;
+    text-align: center;
+}
+
+.invest-btn {
+    height: 100%;
 }
 
 .stats-area {
@@ -541,7 +593,7 @@ textarea {
 
 .progress-text {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     color: #ffecb3;
@@ -556,51 +608,6 @@ textarea {
     bottom: 4cqh;
     left: 50%;
     transform: translateX(-50%);
-}
-
-.prestige-essence {
-    color: #ffecb3;
-    font-size: 1.6cqh;
-}
-
-.prestige-essence span {
-    font-weight: bold;
-    color: #ffd966;
-}
-
-.prestige-tab-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2cqh;
-}
-
-.luck-gen-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1cqh;
-    font-size: 1.8cqh;
-}
-
-.generator-controls {
-    display: flex;
-    gap: 1cqh;
-}
-
-.gen-locked {
-    font-size: 2cqh;
-    color: #b9d0e7;
-}
-
-.invest-input {
-    width: 8cqh;
-    font-size: 1.8cqh;
-    background: #333;
-    color: white;
-    border: 0.15em solid #999;
-    border-radius: 0.5cqh;
-    text-align: center;
 }
 
 .hidden {

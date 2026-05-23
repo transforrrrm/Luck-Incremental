@@ -22,7 +22,7 @@ const DEFAULT_GAME = {
     prestigeCount: new OmegaNum(0),
     totalLuckEssence: new OmegaNum(0),
     maxSingleEssence: new OmegaNum(0),
-    fastestPrestige: Infinity,
+    fastestPrestige: 1.79e308,
     timeSincePrestige: 0,
     luckiestThisPrestige: { value: new OmegaNum(0), recChance: new OmegaNum(0) },
     currentTab: 'home',
@@ -56,33 +56,36 @@ function loadGame() {
 }
 
 function deepMerge(target, source) {
+    if (source === undefined) return target;
+
     if (Array.isArray(target)) {
+        if (!Array.isArray(source)) return target;
         const result = new Array(target.length);
         for (let i = 0; i < target.length; i++) {
-            const targetVal = target[i];
-            const sourceVal = source?.[i];
-            if (targetVal instanceof Object && !(targetVal instanceof OmegaNum)) {
-                result[i] = deepMerge(targetVal, sourceVal || {});
-            } else {
-                result[i] = sourceVal !== undefined ? sourceVal : targetVal;
-            }
+            result[i] = deepMerge(target[i], source[i]);
         }
         return result;
     }
 
-    if (target instanceof Object) {
+    if (target instanceof OmegaNum) {
+        if (typeof source === 'number' || source instanceof OmegaNum) {
+            return new OmegaNum(source);
+        }
+        return target;
+    }
+
+    if (target !== null && typeof target === 'object') {
+        if (source === null || typeof source !== 'object' || Array.isArray(source) || source instanceof OmegaNum) {
+            return target;
+        }
         const result = { ...target };
         for (const key in target) {
-            const targetVal = target[key];
-            const sourceVal = source?.[key];
-            if (targetVal instanceof Object && !(targetVal instanceof OmegaNum)) {
-                result[key] = deepMerge(targetVal, sourceVal || {});
-            } else {
-                result[key] = sourceVal !== undefined ? sourceVal : targetVal;
-            }
+            result[key] = deepMerge(target[key], source[key]);
         }
         return result;
     }
+
+    return source;
 }
 
 function isOmegaNumObject(obj) {
