@@ -194,6 +194,11 @@ body {
     z-index: 10;
 }
 
+.upgrade .mask.prestige {
+    background: #eee;
+    border: 0.1em solid #7eb0ff;
+}
+
 .upgrade.locked .mask {
     display: flex;
 }
@@ -217,6 +222,11 @@ body {
     background: #555;
     border: 0.1em solid #999;
     border-radius: 1cqh;
+}
+
+.upgrade-desc.prestige {
+    background-color: #bbb;
+    border-color: #0081e4;
 }
 
 .upgrade-name {
@@ -269,15 +279,25 @@ button.disabled {
     color: #2890e0;
 }
 
+.prestige-dark {
+    color: #1a5787;
+}
+
 button.prestige {
     background-color: #bbb;
     border-color: #0081e4;
 }
 
 button.prestige.active,
-button.prestige:hover {
+button.prestige:not(.disabled):hover {
     background-color: #2890e0;
     color: white;
+}
+
+button.prestige.disabled {
+    background-color: #999;
+    border-color: #0081e4;
+    color: rgb(169, 29, 29);
 }
 
 .gen-locked {
@@ -298,6 +318,11 @@ button.prestige:hover {
     font-size: 3cqh;
     color: #b9d0e7;
     margin-bottom: 1.5cqh;
+}
+
+.luck-gen-eff {
+    color: #2890e0;
+    font-size: 2em;
 }
 
 .generator-controls {

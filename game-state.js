@@ -5,9 +5,11 @@ const DEFAULT_GAME = {
     drawCooldown: 1000,
     upgradeExpLevel: new OmegaNum(0),
     upgradeSigLevel: new OmegaNum(0),
+    upgradeEssLevel: new OmegaNum(0),
     luckyUpgradeUnlocked: false,
     expUpgradeUnlocked: false,
     sigUpgradeUnlocked: false,
+    essUpgradeUnlocked: false,
 
     hasPrestiged: false,
     luckyEssence: new OmegaNum(0),

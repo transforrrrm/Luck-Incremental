@@ -75,6 +75,18 @@
                                 <button id="buyMaxSigUpgradeBtn" class="upgrade-btn max disabled">购买最大</button>
                             </div>
                         </div>
+
+                        <div class="upgrade locked hidden" id="essUpgradeBlock">
+                            <div class="mask prestige">达到1600σ后解锁</div>
+                            <div class="upgrade-stat">
+                                <div class="upgrade-desc prestige">
+                                    <span class="upgrade-name" id="essenceName">精华升级(0)</span>
+                                    <span id="essenceDesc">σ×1</span>
+                                </div>
+                                <button id="buyEssUpgradeBtn" class="upgrade-btn prestige disabled">花费：2幸运精华</button>
+                                <button id="buyMaxEssUpgradeBtn" class="upgrade-btn max prestige disabled">购买最大</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -83,10 +95,10 @@
         <div id="prestigePanel" class="panel hidden">
             <div id="luckGeneratorBlock" class="luck-gen-block hidden">
                 <div id="luckGenerator" class="luck-gen-title">幸运生成器</div>
-                <div>你已投入了<span id="investedEssenceVal" class="prestige">0</span>幸运精华</div>
+                <div>你已投入了<span id="investedEssenceVal" class="luck-gen-eff">0</span>幸运精华</div>
                 <div>
-                    你有<span id="luckValueDisplay" class="prestige">0</span>幸运值<span id="luckValueDecrease" class="prestige">(-0.05/s)</span>，
-                    使抽取概率^<span id="luckValueEffect" class="prestige">1</span>
+                    你有<span id="luckValueDisplay" class="luck-gen-eff">0</span>幸运值<span id="luckValueDecrease" class="prestige">(-0.05/s)</span> ,
+                    使抽取概率<span id="luckValueEffect" class="luck-gen-eff">^1</span>
                 </div>
                 <div>幸运值每秒有5%的概率增加1点</div>
                 <div class="generator-controls">
@@ -165,7 +177,7 @@
 
         <div id="progressBarContainer" class="progress-bar-container">
             <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
-            <div id="progressText" class="progress-text">达到280σ以解锁推进(0%)</div>
+            <div id="progressText" class="progress-text">达到280σ以解锁<span class="prestige-dark">推进</span>(0%)</div>
         </div>
 
         <div class="version">v0.1</div>
@@ -173,6 +185,7 @@
 
     <script src="utils.js"></script>
     <script src="game-state.js"></script>
+    <script src="upgrades.js"></script>
     <script src="ui-handler.js"></script>
     <script src="achievements.js"></script>
     <script src="prestige.js"></script>

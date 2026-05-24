@@ -25,6 +25,7 @@ function performPrestige() {
         elements.luckyEssenceDisplay.classList.remove('hidden');
         elements.prestigeBtn.classList.remove('hidden');
         elements.prestigeTab.classList.remove('hidden');
+        elements.essUpgradeBlock.classList.remove('hidden');
         elements.prestigeStat.classList.remove('hidden');
     }
 

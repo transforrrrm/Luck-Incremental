@@ -120,7 +120,7 @@ function formatNumber(num) {
             else decimals = 0;
 
             const aNum = parseFloat(a.toFixed(decimals));
-            if (a === 10) aNum -= Math.pow(10, -decimals);
+            if (aNum === 10) aNum -= Math.pow(10, -decimals);
             const formattedA = aNum.toFixed(decimals);
             const newAeb = `${formattedA}e${b}`;
             return str.replace(fullMatch, newAeb);

@@ -8,16 +8,6 @@ const elements = new Proxy({}, {
     }
 });
 
-const UPGRADES = {
-    exponent: { baseCost: 100, levelRef: 'upgradeExpLevel', onBuy() { } },
-    sigma: {
-        baseCost: 1500, levelRef: 'upgradeSigLevel', onBuy() {
-            if (!state.completedAchievements[0][3]) completeAchievement(1, 4);
-            checkSigma();
-        }
-    }
-};
-
 let state = DEFAULT_GAME;
 let pendingReset = 0;
 let lastDrawTime = 0;
@@ -91,52 +81,23 @@ async function performDraw() {
         elements.sigUpgradeBlock.classList.remove('hidden');
         elements.sigmaUpgrade.textContent = '标准差升级';
     }
+    if (!state.essUpgradeUnlocked && value.gte(1600)) {
+        state.essUpgradeUnlocked = true;
+        elements.essUpgradeBlock.classList.remove('locked');
+    }
 
     updateUI();
 }
 
 function increaseLucky() {
-    const exponent = state.upgradeExpLevel.add(1);
-    const multiplier = OmegaNum.pow(1.1, exponent);
+    const multiplier = getUpgradeEffect('exponent', state.upgradeExpLevel).luckyFactorMult;
     state.luckyFactor = state.luckyFactor.mul(multiplier);
     checkLuckyFactor();
     updateUI();
 }
 
-function purchaseUpgrade(type) {
-    const cfg = UPGRADES[type];
-    const L = state[cfg.levelRef];
-    const cost = L.add(1).mul(cfg.baseCost);
-    if (state.luckPoints.lt(cost)) return;
-
-    state.luckPoints = state.luckPoints.sub(cost);
-    state[cfg.levelRef] = L.add(1);
-    if (cfg.onBuy) cfg.onBuy();
-    updateUI();
-}
-
-function purchaseMaxUpgrade(type) {
-    const cfg = UPGRADES[type];
-    const baseCost = cfg.baseCost;
-    const L = state[cfg.levelRef];
-    const P = state.luckPoints;
-    if (P.lt(L.add(1).mul(baseCost))) return;
-
-    const b = L.mul(2).add(1);
-    const discriminant = b.mul(b).add(P.mul(8).div(baseCost));
-    const sqrtD = discriminant.sqrt();
-    const k = sqrtD.sub(b).div(2).floor();
-
-    const finalCost = L.add(k.add(1).div(2)).mul(baseCost).mul(k);
-    state.luckPoints = state.luckPoints.sub(finalCost);
-    state[cfg.levelRef] = L.add(k);
-
-    if (cfg.onBuy) cfg.onBuy();
-    updateUI();
-}
-
 function calcSigma() {
-    return state.upgradeSigLevel.add(1).sqrt();
+    return getUpgradeEffect('sigma', state.upgradeSigLevel).SigmaMult.mul(getUpgradeEffect('essence', state.upgradeEssLevel).SigmaMult);
 }
 function hardReset() {
     pendingReset++;
@@ -273,9 +234,11 @@ const idHandlers = {
     cancelBtn: () => modal.classList.add('hidden'),
     generatorLocked: unlockGenerator,
     buyExpUpgradeBtn: () => purchaseUpgrade('exponent'),
-    buyMaxExpUpgradeBtn: () => purchaseMaxUpgrade('exponent'),
+    buyMaxExpUpgradeBtn: () => purchaseUpgrade('exponent', true),
     buySigUpgradeBtn: () => purchaseUpgrade('sigma'),
-    buyMaxSigUpgradeBtn: () => purchaseMaxUpgrade('sigma'),
+    buyMaxSigUpgradeBtn: () => purchaseUpgrade('sigma', true),
+    buyEssUpgradeBtn: () => purchaseUpgrade('essence'),
+    buyMaxEssUpgradeBtn: () => purchaseUpgrade('essence', true),
 };
 
 elements.importFileInput.onchange = (e) => {

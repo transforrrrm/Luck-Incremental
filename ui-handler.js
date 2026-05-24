@@ -22,12 +22,11 @@ function updateUI() {
         if (state.luckyUpgradeUnlocked) {
             elements.luckyFactorVal.textContent = formatNumber(state.luckyFactor);
             if (state.expUpgradeUnlocked) {
-                const mult = OmegaNum.pow(1.1, state.upgradeExpLevel.add(1));
                 const level = state.upgradeExpLevel;
-                elements.increaseLuckyBtn.textContent = `×${formatNumber(mult)}`;
+                elements.increaseLuckyBtn.textContent = `×${formatNumber(getUpgradeEffect('exponent', level).luckyFactorMult)}`;
                 elements.exponentName.textContent = `幸运升级(${level})`;
-                elements.exponentDesc.textContent = `每次点击增加的幸运乘数^${formatNumber(level.add(1))}`;
-                const cost = level.add(1).mul(100);
+                elements.exponentDesc.textContent = `每次点击增加的幸运乘数^${formatNumber(getUpgradeEffect('exponent', level).luckyFactorExp)}`;
+                const cost = getUpgradeCost('exponent', level);
                 elements.buyExpUpgradeBtn.textContent = `花费：${formatNumber(cost)}幸运点`;
                 elements.buyExpUpgradeBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn' : 'upgrade-btn disabled';
                 elements.buyMaxExpUpgradeBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn max' : 'upgrade-btn max disabled';
@@ -37,11 +36,21 @@ function updateUI() {
             const level = state.upgradeSigLevel;
             elements.sigmaVal.textContent = formatNumber(calcSigma());
             elements.sigmaName.textContent = `标准差升级(${level})`;
-            elements.sigmaDesc.textContent = `σ×${formatNumber(level.add(1).sqrt())}`;
-            const cost = level.add(1).mul(1500);
+            elements.sigmaDesc.textContent = `σ×${formatNumber(getUpgradeEffect('sigma', level).SigmaMult)}`;
+            const cost = getUpgradeCost('sigma', level);
             elements.buySigUpgradeBtn.textContent = `花费：${formatNumber(cost)}幸运点`;
             elements.buySigUpgradeBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn' : 'upgrade-btn disabled';
             elements.buyMaxSigUpgradeBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn max' : 'upgrade-btn max disabled';
+
+            if (state.essUpgradeUnlocked) {
+                const level = state.upgradeEssLevel;
+                elements.essenceName.textContent = `精华升级(${level})`;
+                elements.essenceDesc.textContent = `σ×${formatNumber(getUpgradeEffect('essence', level).SigmaMult)}`;
+                const cost = getUpgradeCost('essence', level);
+                elements.buyEssUpgradeBtn.textContent = `花费：${formatNumber(cost)}幸运精华`;
+                elements.buyEssUpgradeBtn.className = state.luckyEssence.gte(cost) ? 'upgrade-btn prestige' : 'upgrade-btn prestige disabled';
+                elements.buyMaxEssUpgradeBtn.className = state.luckyEssence.gte(cost) ? 'upgrade-btn prestige max' : 'upgrade-btn prestige max disabled';
+            }
         }
     }
     if (state.currentTab === 'prestige') {
@@ -52,7 +61,7 @@ function updateUI() {
             elements.luckValueDecrease.textContent = val.eq(0) ? '' : '(-0.05/s)';
             const e = state.investedEssence;
             const v = state.luckValue;
-            elements.luckValueEffect.textContent = formatNumber(e.div(5).add(1).mul(v).add(1));
+            elements.luckValueEffect.textContent = `^${formatNumber(e.div(5).add(1).mul(v).add(1))}`;
         }
     }
     if (state.currentTab === 'stats') {
@@ -89,7 +98,7 @@ function updateProgressBar() {
     if (state.hasPrestiged) {
         elements.progressText.textContent = '所有功能已解锁！';
     } else {
-        elements.progressText.innerHTML = `达到280σ以解锁<span class="prestige">推进</span>(${formatNumber(percent.mul(100))}%)`;
+        elements.progressText.innerHTML = `达到280σ以解锁<span class="prestige-dark">推进</span>(${formatNumber(percent.mul(100))}%)`;
     }
 }
 
@@ -145,6 +154,9 @@ function initUI() {
     if (state.expUpgradeUnlocked) {
         elements.expUpgradeBlock.classList.remove('locked');
     }
+    if (state.essUpgradeUnlocked) {
+        elements.essUpgradeBlock.classList.remove('locked');
+    }
     if (state.sigUpgradeUnlocked) {
         elements.sigUpgradeBlock.classList.remove('hidden');
         elements.sigmaUpgrade.textContent = '标准差升级';
@@ -153,6 +165,7 @@ function initUI() {
         elements.luckyEssenceDisplay.classList.remove('hidden');
         elements.prestigeBtn.classList.remove('hidden');
         elements.prestigeTab.classList.remove('hidden');
+        elements.essUpgradeBlock.classList.remove('hidden');
         elements.prestigeStat.classList.remove('hidden');
         if (state.luckGeneratorUnlocked) {
             elements.generatorLocked.classList.add('hidden');
