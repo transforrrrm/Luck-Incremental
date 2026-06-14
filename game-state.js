@@ -3,19 +3,23 @@ const DEFAULT_GAME = {
     luckPoints: new OmegaNum(0),
     luckyFactor: new OmegaNum(1),
     drawCooldown: 1000,
-    upgradeExpLevel: new OmegaNum(0),
-    upgradeSigLevel: new OmegaNum(0),
-    upgradeEssLevel: new OmegaNum(0),
+    upgradeLevels: {
+        luck: new OmegaNum(0),
+        sigma: new OmegaNum(0),
+        essence: new OmegaNum(0),
+    },
+    oneShotPurchased: {
+        U: [false, false, false, false, false, false, false, false, false]
+    },
     luckyUpgradeUnlocked: false,
-    expUpgradeUnlocked: false,
     sigUpgradeUnlocked: false,
-    essUpgradeUnlocked: false,
 
     hasPrestiged: false,
     luckyEssence: new OmegaNum(0),
     luckGeneratorUnlocked: false,
     investedEssence: new OmegaNum(0),
     luckValue: new OmegaNum(0),
+    automationUnlocked: false,
 
     totalLuckPoints: new OmegaNum(0),
     totalDraws: new OmegaNum(0),
@@ -28,15 +32,19 @@ const DEFAULT_GAME = {
     timeSincePrestige: 0,
     luckiestThisPrestige: { value: new OmegaNum(0), recChance: new OmegaNum(0) },
     currentTab: 'home',
-    currentSubTab: { achievements: 'normal' },
+    currentSubTab: { prestige: 'generator', achievements: 'normal' },
     completedAchievements: [
         [false, false, false, false, false, false, false, false],
-        [false, false, false, false, false]
+        [false, false, false, false, false, false, false, false]
     ],
     completedHiddenAchievements: [
         [false, false, false, false, false, false, false, false],
-        [false]
-    ]
+        [false, false, false]
+    ],
+
+    singlePurchaseCount: 0,
+
+    version: '0.1.2'
 };
 
 const SAVE_KEY = 'LuckyIncrementalSave';
@@ -51,7 +59,8 @@ function loadGame() {
     if (!raw) return;
     try {
         const data = convertToOmegaNum(JSON.parse(atob(raw)));
-        state = deepMerge(DEFAULT_GAME, data);
+        const migratedState = data.version !== undefined ? data : migrateState(data); // 临时加入
+        state = deepMerge(DEFAULT_GAME, migratedState);
     } catch (e) {
         console.warn(e);
     }
@@ -105,4 +114,23 @@ function convertToOmegaNum(obj) {
         }
     }
     return obj;
+}
+
+// 临时加入
+function migrateState(oldState) {
+    const newState = {};
+
+    newState.upgradeLevels = {};
+    newState.upgradeLevels.luck = oldState.upgradeExpLevel;
+    newState.upgradeLevels.sigma = oldState.upgradeSigLevel;
+    newState.upgradeLevels.essence = oldState.upgradeEssLevel;
+
+    const excludeKeys = ['upgradeExpLevel', 'expUpgradeUnlocked', 'upgradeSigLevel', 'upgradeEssLevel', 'essUpgradeUnlocked'];
+    for (const key in oldState) {
+        if (!excludeKeys.includes(key)) {
+            newState[key] = oldState[key];
+        }
+    }
+
+    return newState;
 }

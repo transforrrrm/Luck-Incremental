@@ -1,56 +1,35 @@
 function updateUI() {
-    const now = Date.now();
     elements.luckyEssenceVal.textContent = formatNumber(state.luckyEssence);
     elements.luckValue.textContent = formatNumber(state.luckPoints);
     const maxSigma = state.luckiestThisPrestige.value;
-    if (maxSigma.gte(280)) {
-        const essenceGain = maxSigma.sub(80).div(200).sqrt().floor();
+    const extraReq = state.oneShotPurchased.U[6] ? 0 : 80;
+    const mult = state.oneShotPurchased.U[7] ? 1.3 : 1;
+    if (maxSigma.gte(200 + extraReq)) {
+        const essenceGain = maxSigma.sub(extraReq).div(200).sqrt().mul(mult).floor();
         let text = `重置以获得${essenceGain}幸运精华`;
         if (essenceGain.lt(100)) {
-            const nextThreshold = essenceGain.add(1).pow(2).mul(200).add(80);
+            const nextThreshold = essenceGain.add(1).div(mult).pow(2).mul(200).add(extraReq);
             text += `\n下一个在：${nextThreshold}σ`;
         }
         elements.prestigeBtn.textContent = text;
     } else {
-        elements.prestigeBtn.textContent = '达到280σ';
+        elements.prestigeBtn.textContent = `达到${200 + extraReq}σ`;
     }
     updateProgressBar();
+    updateUpgradesUI();
     if (state.currentTab === 'home') {
-        const cdTime = state.drawCooldown - (now - lastDrawTime);
-        elements.drawBtn.textContent = `抽取随机数${cdTime > 0 ? `(${formatTime(new OmegaNum(cdTime / 1000))})` : ''}`
-        elements.drawBtn.className = cdTime > 0 ? 'draw-btn disabled' : 'draw-btn';
+        if (state.drawCooldown !== 0) {
+            const now = Date.now();
+            const cdTime = state.drawCooldown - (now - lastDrawTime);
+            elements.drawBtn.textContent = `抽取随机数${cdTime > 0 ? `(${formatTime(new OmegaNum(cdTime / 1000))})` : ''}`
+            elements.drawBtn.className = cdTime > 0 ? 'draw-btn disabled' : 'draw-btn';
+        }
         if (state.luckyUpgradeUnlocked) {
             elements.luckyFactorVal.textContent = formatNumber(state.luckyFactor);
-            if (state.expUpgradeUnlocked) {
-                const level = state.upgradeExpLevel;
-                elements.increaseLuckyBtn.textContent = `×${formatNumber(getUpgradeEffect('exponent', level).luckyFactorMult)}`;
-                elements.exponentName.textContent = `幸运升级(${level})`;
-                elements.exponentDesc.textContent = `每次点击增加的幸运乘数^${formatNumber(getUpgradeEffect('exponent', level).luckyFactorExp)}`;
-                const cost = getUpgradeCost('exponent', level);
-                elements.buyExpUpgradeBtn.textContent = `花费：${formatNumber(cost)}幸运点`;
-                elements.buyExpUpgradeBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn' : 'upgrade-btn disabled';
-                elements.buyMaxExpUpgradeBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn max' : 'upgrade-btn max disabled';
-            }
+            elements.increaseLuckyBtn.textContent = `×${formatNumber(getUpgradeEffect('luck').mult)}`;
         }
         if (state.sigUpgradeUnlocked) {
-            const level = state.upgradeSigLevel;
             elements.sigmaVal.textContent = formatNumber(calcSigma());
-            elements.sigmaName.textContent = `标准差升级(${level})`;
-            elements.sigmaDesc.textContent = `σ×${formatNumber(getUpgradeEffect('sigma', level).SigmaMult)}`;
-            const cost = getUpgradeCost('sigma', level);
-            elements.buySigUpgradeBtn.textContent = `花费：${formatNumber(cost)}幸运点`;
-            elements.buySigUpgradeBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn' : 'upgrade-btn disabled';
-            elements.buyMaxSigUpgradeBtn.className = state.luckPoints.gte(cost) ? 'upgrade-btn max' : 'upgrade-btn max disabled';
-
-            if (state.essUpgradeUnlocked) {
-                const level = state.upgradeEssLevel;
-                elements.essenceName.textContent = `精华升级(${level})`;
-                elements.essenceDesc.textContent = `σ×${formatNumber(getUpgradeEffect('essence', level).SigmaMult)}`;
-                const cost = getUpgradeCost('essence', level);
-                elements.buyEssUpgradeBtn.textContent = `花费：${formatNumber(cost)}幸运精华`;
-                elements.buyEssUpgradeBtn.className = state.luckyEssence.gte(cost) ? 'upgrade-btn prestige' : 'upgrade-btn prestige disabled';
-                elements.buyMaxEssUpgradeBtn.className = state.luckyEssence.gte(cost) ? 'upgrade-btn prestige max' : 'upgrade-btn prestige max disabled';
-            }
         }
     }
     if (state.currentTab === 'prestige') {
@@ -65,7 +44,7 @@ function updateUI() {
         }
     }
     if (state.currentTab === 'stats') {
-        elements.gameTime.textContent = formatTime(new OmegaNum(state.gameTime));
+        elements.gameTime.textContent = formatTime(state.gameTime);
         elements.totalLuck.textContent = formatNumber(state.totalLuckPoints);
         elements.maxSingle.textContent = formatNumber(state.maxSingleReward);
         elements.totalDraws.textContent = formatNumber(state.totalDraws);
@@ -85,7 +64,7 @@ function updateUI() {
             } else {
                 elements.luckiestThisPrestige.textContent = '-';
             }
-            elements.timeSincePrestige.textContent = formatTime(new OmegaNum(state.timeSincePrestige));
+            elements.timeSincePrestige.textContent = formatTime(state.timeSincePrestige);
         }
     }
 }
@@ -148,24 +127,17 @@ function renderHiddenAchievements() {
 function initUI() {
     if (state.luckyUpgradeUnlocked) {
         elements.luckUpgradeBlock.classList.remove('hidden');
-        elements.luckUpgrade.textContent = '幸运升级';
+        elements.luckUpgradeTitle.textContent = '幸运升级';
     }
 
-    if (state.expUpgradeUnlocked) {
-        elements.expUpgradeBlock.classList.remove('locked');
-    }
-    if (state.essUpgradeUnlocked) {
-        elements.essUpgradeBlock.classList.remove('locked');
-    }
     if (state.sigUpgradeUnlocked) {
         elements.sigUpgradeBlock.classList.remove('hidden');
-        elements.sigmaUpgrade.textContent = '标准差升级';
+        elements.sigmaUpgradeTitle.textContent = '标准差升级';
     }
     if (state.hasPrestiged) {
         elements.luckyEssenceDisplay.classList.remove('hidden');
         elements.prestigeBtn.classList.remove('hidden');
         elements.prestigeTab.classList.remove('hidden');
-        elements.essUpgradeBlock.classList.remove('hidden');
         elements.prestigeStat.classList.remove('hidden');
         if (state.luckGeneratorUnlocked) {
             elements.generatorLocked.classList.add('hidden');
@@ -175,6 +147,7 @@ function initUI() {
 
     renderAchievements();
     renderHiddenAchievements();
+    renderAllUpgrades();
     switchPanel(state.currentTab);
 }
 
@@ -193,7 +166,7 @@ function switchPanel(panelId) {
     }
     state.currentTab = panelId;
     if (state.currentSubTab[panelId]) switchSubTab(state.currentSubTab[panelId]);
-    updateUI();
+    else updateUI();
 }
 
 function switchSubTab(subTabId) {

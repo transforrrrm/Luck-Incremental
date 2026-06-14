@@ -14,7 +14,10 @@ const ACHIEVEMENTS = [
         { name: '单调递增', desc: '在解锁幸运生成器后的连续10次抽取中，每一次的幸运点都比上一次高。' },
         { name: '臭死了哼哼啊', desc: '抽到超过114514幸运点。' },
         { name: '欧吃矛', desc: '在幸运乘数<10时达到10σ。' },
-        { name: '无限猴子定理', desc: '幸运乘数达到e7.456e6。' }
+        { name: '无限猴子定理', desc: '幸运乘数达到e7.456e6。' },
+        { name: '推进器', desc: '购买第一个推进升级。' },
+        { name: '真·无限幸运', desc: '每次点击增加的幸运乘数超过1.79e308。' },
+        { name: '这玩意已经没用了', desc: '在幸运乘数为1时进行一次推进重置，并获得至少2个精华。\n完成前两行成就后将去除抽取冷却时间。' }
     ]
 ];
 
@@ -30,17 +33,28 @@ const HIDDEN_ACHIEVEMENTS = [
         { name: '遵循指令', descUnfinished: '...你确实遵循了指令。', descFinished: '在导入文本时输入"文本"。' }
     ],
     [
-        { name: '说明你是入机', descUnfinished: '因为你是入机。', descFinished: '连续80s幸运值没有增加。\n概率：1/60.55, ≈1/e⁴。' }
+        { name: '说明你是入机', descUnfinished: '因为你是入机。', descFinished: '连续80s幸运值没有增加。\n概率：1/60.55, ≈1/e⁴。' },
+        { name: '我们应该告诉他购买最大吗...', descUnfinished: '你纯手点的啊？', descFinished: '买10000次单次升级。' },
+        { name: '我们不招募开发者', descUnfinished: '这不是“加入我们”链接。', descFinished: '点10次版本号。' }
     ]
 ];
 
 function refreshDrawCooldown() {
+    if (state.drawCooldown === 0) return;
     const completedRow1 = state.completedAchievements[0].filter(v => v === true).length;
     const completedRow2 = state.completedAchievements[1].filter(v => v === true).length;
-    const divisor1 = Math.pow(1.1, completedRow1);
-    const divisor2 = Math.pow(1.21, completedRow2);
-    state.drawCooldown = 1000 / (divisor1 * divisor2);
+    if (completedRow1 + completedRow2 === 16) {
+        state.drawCooldown = 0;
+        state.automationUnlocked = true;
+        elements.drawBtn.textContent = '抽取随机数';
+        elements.drawBtn.classList.remove('disabled');
+    } else {
+        const divisor1 = Math.pow(1.1, completedRow1);
+        const divisor2 = Math.pow(1.21, completedRow2);
+        state.drawCooldown = 1000 / (divisor1 * divisor2);
+    }
 }
+
 
 function completeAchievement(row, col) {
     const i = row - 1;
@@ -86,7 +100,7 @@ function checkSigma() {
 }
 
 function checkValue(value) {
-   if (!state.completedHiddenAchievements[0][0] && !state.luckyUpgradeUnlocked) {
+    if (!state.completedHiddenAchievements[0][0] && !state.luckyUpgradeUnlocked) {
         if (value.lt(2)) {
             consecutiveBelow2Sigma++;
             if (consecutiveBelow2Sigma >= 22) {
@@ -125,7 +139,7 @@ function checkHiddenAchievements() {
             if (Math.random() < 1 / 100000) completeHiddenAchievement(1, 4);
         }
         if (state.currentTab === 'stats' && !state.completedHiddenAchievements[0][6]) {
-            
+
             if (now - lastStatsViewTimestamp >= 900000) completeHiddenAchievement(1, 7);
         }
     }, 1000);

@@ -41,74 +41,50 @@
             <button id="drawBtn" class="draw-btn">抽取随机数</button>
             <div class="upgrade-area">
                 <div class="upgrade-item">
-                    <div id="luckUpgrade" class="upgrade-title">达到2σ以解锁幸运升级</div>
+                    <div id="luckUpgradeTitle" class="upgrade-title">达到2σ以解锁幸运升级</div>
                     <div class="upgrade-container hidden" id="luckUpgradeBlock">
                         <div class="luck-stat">幸运乘数：×<span id="luckyFactorVal">1</span></div>
                         <button id="increaseLuckyBtn" class="lucky-btn">×1.1</button>
-
-                        <div class="upgrade locked" id="expUpgradeBlock">
-                            <div class="mask">达到10σ后解锁</div>
-                            <div class="upgrade-stat">
-                                <div class="upgrade-desc">
-                                    <span class="upgrade-name" id="exponentName">幸运升级(0)</span>
-                                    <span id="exponentDesc">每次点击增加的幸运乘数^1</span>
-                                </div>
-                                <button id="buyExpUpgradeBtn" class="upgrade-btn disabled">花费：100幸运点</button>
-                                <button id="buyMaxExpUpgradeBtn" class="upgrade-btn max disabled">购买最大</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 <div class="upgrade-item">
-                    <div id="sigmaUpgrade" class="upgrade-title">达到80σ以解锁标准差升级</div>
+                    <div id="sigmaUpgradeTitle" class="upgrade-title">达到80σ以解锁标准差升级</div>
                     <div class="upgrade-container hidden" id="sigUpgradeBlock">
                         <div class="luck-stat">σ: <span id="sigmaVal">1</span></div>
-
-                        <div class="upgrade">
-                            <div class="upgrade-stat">
-                                <div class="upgrade-desc">
-                                    <span class="upgrade-name" id="sigmaName">标准差升级(0)</span>
-                                    <span id="sigmaDesc">σ×1</span>
-                                </div>
-                                <button id="buySigUpgradeBtn" class="upgrade-btn disabled">花费：1500幸运点</button>
-                                <button id="buyMaxSigUpgradeBtn" class="upgrade-btn max disabled">购买最大</button>
-                            </div>
-                        </div>
-
-                        <div class="upgrade locked hidden" id="essUpgradeBlock">
-                            <div class="mask prestige">达到1600σ后解锁</div>
-                            <div class="upgrade-stat">
-                                <div class="upgrade-desc prestige">
-                                    <span class="upgrade-name" id="essenceName">精华升级(0)</span>
-                                    <span id="essenceDesc">σ×1</span>
-                                </div>
-                                <button id="buyEssUpgradeBtn" class="upgrade-btn prestige disabled">花费：2幸运精华</button>
-                                <button id="buyMaxEssUpgradeBtn" class="upgrade-btn max prestige disabled">购买最大</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="prestigePanel" class="panel hidden">
-            <div id="luckGeneratorBlock" class="luck-gen-block hidden">
-                <div id="luckGenerator" class="luck-gen-title">幸运生成器</div>
-                <div>你已投入了<span id="investedEssenceVal" class="luck-gen-eff">0</span>幸运精华</div>
-                <div>
-                    你有<span id="luckValueDisplay" class="luck-gen-eff">0</span>幸运值<span id="luckValueDecrease" class="prestige">(-0.05/s)</span> ,
-                    使抽取概率<span id="luckValueEffect" class="luck-gen-eff">^1</span>
-                </div>
-                <div>幸运值每秒有5%的概率增加1点</div>
-                <div class="generator-controls">
-                    <span>投入数量 :</span>
-                    <input id="investAmountInput" value="1" class="invest-input">
-                    <button id="investBtn" class="invest-btn prestige">投入</button>
-                    <button id="investAllBtn" class="invest-btn prestige">投入全部</button>
-                </div>
+            <div class="subtab-area">
+                <button class="subtab-btn prestige active" data-subtab="generator">生成器</button>
+                <button class="subtab-btn prestige" data-subtab="upgrades">升级</button>
             </div>
-            <button id="generatorLocked" class="gen-locked prestige">解锁幸运生成器<br>花费：1幸运精华</button>
+            <div id="generatorPrestigePanel" class="subtab">
+                <div id="luckGeneratorBlock" class="luck-gen-block hidden">
+                    <div id="luckGenerator" class="luck-gen-title">幸运生成器</div>
+                    <div>你已投入了<span id="investedEssenceVal" class="luck-gen-eff">0</span>幸运精华</div>
+                    <div>
+                        你有<span id="luckValueDisplay" class="luck-gen-eff">0</span>幸运值<span id="luckValueDecrease"
+                            class="prestige">(-0.05/s)</span> ,
+                        使抽取概率<span id="luckValueEffect" class="luck-gen-eff">^1</span>
+                    </div>
+                    <div>幸运值每秒有5%的概率增加1点</div>
+                    <div class="generator-controls">
+                        <span>投入数量 :</span>
+                        <input id="investAmountInput" value="1" class="invest-input">
+                        <button id="investBtn" class="invest-btn prestige">投入</button>
+                        <button id="investAllBtn" class="invest-btn prestige">投入全部</button>
+                    </div>
+                </div>
+                <button id="generatorLocked" class="gen-locked prestige">解锁幸运生成器<br>花费：1幸运精华</button>
+            </div>
+            <div id="upgradesPrestigePanel" class="subtab hidden">
+                <div class="upgrade-grid" id="boostUpgradeBlock"></div>
+            </div>
+
         </div>
 
         <div id="statsPanel" class="panel hidden">
@@ -131,7 +107,6 @@
                     <div>你最快的重置是 <span id="fastestPrestige">-</span></div>
                     <div>本次重置中你最幸运的抽取是 <span id="luckiestThisPrestige">-</span></div>
                     <div>自上次重置以来过了 <span id="timeSincePrestige">0s</span></div>
-                    <div id="luckyFactorDesc"></div>
                 </div>
             </div>
         </div>
@@ -162,6 +137,11 @@
             <div class="setting-row">
                 <button id="hardResetBtn" class="danger-btn">硬重置</button>
             </div>
+            <div class="hotkey-hint">
+                <div class="hotkey-title">快捷键</div>
+                <div>抽取：D</div>
+                <div>推进：R</div>
+            </div>
         </div>
 
         <div id="modal" class="modal hidden">
@@ -180,7 +160,7 @@
             <div id="progressText" class="progress-text">达到280σ以解锁<span class="prestige-dark">推进</span>(0%)</div>
         </div>
 
-        <div class="version">v0.1</div>
+        <div id="version" class="version">v0.1.2</div>
     </div>
 
     <script src="utils.js"></script>

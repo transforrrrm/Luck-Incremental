@@ -89,6 +89,7 @@ function erfcinv_asymptotic(neglnx) {
 
 const EXP_FORMAT_PATTERN = /(\d*\.?\d+)?(e)([+-]?\d*\.?\d+)$/;
 function formatNumber(num) {
+    if (!(num instanceof OmegaNum)) num = new OmegaNum(num);
     if (num.gte(1e6)) {
         const str = num.toStringWithDecimalPlaces(6, true);
         const match = str.match(EXP_FORMAT_PATTERN);
@@ -119,33 +120,80 @@ function formatNumber(num) {
             else if (b < 100000) decimals = 1;
             else decimals = 0;
 
-            const aNum = parseFloat(a.toFixed(decimals));
+            let aNum = parseFloat(a.toFixed(decimals));
             if (aNum === 10) aNum -= Math.pow(10, -decimals);
             const formattedA = aNum.toFixed(decimals);
             const newAeb = `${formattedA}e${b}`;
             return str.replace(fullMatch, newAeb);
-        }
-    } else if (num.gte(10000) || num.eq(0)) return num.toFixed(0);
-    else if (num.gte(1)) return parseFloat(num.toPrecision(5));
-    else if (num.gte(.01)) return parseFloat(num.toFixed(4));
-    else return num.toExponential(3);
+        }t
+    }
+    if (num.gte(10000) || num.eq(0)) return num.toFixed(0);
+    if (num.gte(1)) return parseFloat(num.toPrecision(5));
+    if (num.gte(.01)) return parseFloat(num.toFixed(4));
+    return num.toExponential(3);
 }
 
 function formatTime(t) {
+    if (!(t instanceof OmegaNum)) t = new OmegaNum(t);
     if (t.isInfinite()) return 'Forever';
     if (t.gte(31536000)) {
         const y = t.div(31536000).floor();
         return `${formatNumber(y)}y ${y.gte(1e6) ? '' : `${formatTime(t.mod(31536000))}`}`;
-    } else if (t.gte(86400)) {
+    }
+    if (t.gte(86400)) {
         const d = t.div(86400).floor();
         return `${formatNumber(d)}d ${formatTime(t.mod(86400))}`;
-    } else if (t.gte(3600)) {
+    }
+    if (t.gte(3600)) {
         const h = t.div(3600).floor();
         return `${formatNumber(h)}h ${formatTime(t.mod(3600))}`;
-    } else if (t.gte(60)) {
+    }
+    if (t.gte(60)) {
         const m = t.div(60).floor()
         return `${formatNumber(m)}m ${formatTime(t.mod(60))}`;
-    } else return t.gt(0) ? `${formatNumber(t)}s` : ''
+    }
+    return t.gt(0) ? `${formatNumber(t)}s` : ''
+}
+
+function formatRate(value, delta, dt = 0.05) {
+    const newValue = value.add(delta);
+
+    if (newValue.neq(value)) {
+        if (newValue.gte('10^^5')) {
+            const slogNew = newValue.slog();
+            const slog = value.slog();
+            const slogRate = slogNew.sub(slog).div(dt);
+            if (slogRate.gte(0.01)) return `+${formatNumber(slogRate)}OoM^OoM/s`;
+        }
+
+        if (newValue.gte(1e100)) {
+            const slogNew = newValue.slog();
+            let layer = slogNew.sub(1.3010299956639813).floor(); // 1+lg2
+
+            let newValueLog = newValue.iteratedlog(10, layer);
+            let valueLog = value.iteratedlog(10, layer);
+
+            // 若原值迭代对数结果小于0或无效，则置为0
+            if (valueLog.lt(0) || valueLog.isNaN()) {
+                valueLog = new OmegaNum(0);
+            }
+
+            let deltaLog = newValueLog.sub(valueLog);
+            let rateLog = deltaLog.div(dt);
+
+            if (rateLog.lt(1)) {
+                newValueLog = OmegaNum.pow(10, newValueLog);
+                valueLog = OmegaNum.pow(10, valueLog);
+                deltaLog = newValueLog.sub(valueLog);
+                rateLog = deltaLog.div(dt);
+                layer = layer.sub(1);
+            }
+            return `+${formatNumber(rateLog)}OoM${layer.eq(1) ? '' : `^${layer}`}/s`;
+        }
+    }
+
+    const rate = delta.div(dt);
+    return `+${formatNumber(rate)}/s`;
 }
 
 // 截断抽样：从半正态分布的顶部 1/L 部分抽取
@@ -163,6 +211,6 @@ function drawReward(L, e = new OmegaNum(0), v = new OmegaNum(0)) {
 }
 
 function capitalizeFirstLetter(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }

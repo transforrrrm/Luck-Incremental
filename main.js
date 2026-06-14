@@ -15,9 +15,10 @@ let luckTimer = 0;
 
 let consecutiveBelow2Sigma = 0;
 let saveHistoryTimestamps = [];
-let lastStatsViewTimestamp = 0;
+let lastStatsViewTimestamp = Date.now();
 let recentRewards = [];
 let timeSinceLastLckValInc = 0;
+let versionClickCount = 0;
 
 function updateLuckiestRecord(value, recChance) {
     if (recChance.gt(state.luckiestRecord.recChance)) {
@@ -34,7 +35,7 @@ function trackRecentRewards(reward) {
     if (recentRewards.length === 10) {
         let increasing = true;
         for (let i = 1; i < 10; i++) {
-            if (recentRewards[i].lte(recentRewards[i-1])) {
+            if (recentRewards[i].lte(recentRewards[i - 1])) {
                 increasing = false;
                 break;
             }
@@ -44,9 +45,11 @@ function trackRecentRewards(reward) {
 }
 
 async function performDraw() {
-    const now = Date.now();
-    if (now - lastDrawTime < state.drawCooldown) return;
-    lastDrawTime = now;
+    if (state.drawCooldown !== 0) {
+        const now = Date.now();
+        if (now - lastDrawTime < state.drawCooldown) return;
+        lastDrawTime = now;
+    }
 
     const L = state.luckyFactor;
     const e = state.investedEssence;
@@ -55,10 +58,11 @@ async function performDraw() {
     checkValue(value);
 
     const reward = value.mul(calcSigma());
-    state.luckPoints = state.luckPoints.add(reward);
-    state.totalLuckPoints = state.totalLuckPoints.add(reward);
+    const realReward = reward.mul(calcDrawRewardBonus());
+    state.luckPoints = state.luckPoints.add(realReward);
+    state.totalLuckPoints = state.totalLuckPoints.add(realReward);
     state.totalDraws = state.totalDraws.add(1);
-    state.maxSingleReward = state.maxSingleReward.max(reward);
+    state.maxSingleReward = state.maxSingleReward.max(realReward);
     if (!state.completedAchievements[1][2] && reward.gte(114514)) completeAchievement(2, 3);
     updateLuckiestRecord(value, recChance);
     if (state.luckGeneratorUnlocked && !state.completedAchievements[1][1]) {
@@ -70,35 +74,36 @@ async function performDraw() {
     if (!state.luckyUpgradeUnlocked && value.gte(2)) {
         state.luckyUpgradeUnlocked = true;
         elements.luckUpgradeBlock.classList.remove('hidden');
-        elements.luckUpgrade.textContent = '幸运升级';
-    }
-    if (!state.expUpgradeUnlocked && value.gte(10)) {
-        state.expUpgradeUnlocked = true;
-        elements.expUpgradeBlock.classList.remove('locked');
+        elements.luckUpgradeTitle.textContent = '幸运升级';
     }
     if (!state.sigUpgradeUnlocked && value.gte(80)) {
         state.sigUpgradeUnlocked = true;
         elements.sigUpgradeBlock.classList.remove('hidden');
-        elements.sigmaUpgrade.textContent = '标准差升级';
-    }
-    if (!state.essUpgradeUnlocked && value.gte(1600)) {
-        state.essUpgradeUnlocked = true;
-        elements.essUpgradeBlock.classList.remove('locked');
+        elements.sigmaUpgradeTitle.textContent = '标准差升级';
     }
 
     updateUI();
 }
 
+function calcDrawRewardBonus() {
+    const bonus = new OmegaNum(1)
+        .mul(state.oneShotPurchased.U[3] ? getOneShotEffect('U', 3).mult : 1)
+        .mul(state.oneShotPurchased.U[4] ? getOneShotEffect('U', 4).mult : 1)
+        .mul(state.oneShotPurchased.U[5] ? getOneShotEffect('U', 5).mult : 1)
+    return bonus;
+}
+
 function increaseLucky() {
-    const multiplier = getUpgradeEffect('exponent', state.upgradeExpLevel).luckyFactorMult;
+    const multiplier = getUpgradeEffect('luck').mult;
     state.luckyFactor = state.luckyFactor.mul(multiplier);
     checkLuckyFactor();
     updateUI();
 }
 
 function calcSigma() {
-    return getUpgradeEffect('sigma', state.upgradeSigLevel).SigmaMult.mul(getUpgradeEffect('essence', state.upgradeEssLevel).SigmaMult);
+    return getUpgradeEffect('sigma').mult.mul(getUpgradeEffect('essence').mult);
 }
+
 function hardReset() {
     pendingReset++;
     if (pendingReset > 0) elements.hardResetBtn.textContent = `再点击${10 - pendingReset}次`;
@@ -120,8 +125,9 @@ function exportJSON() {
 function importJSON(jsonStr) {
     try {
         const data = convertToOmegaNum(JSON.parse(atob(jsonStr)));
-        state = deepMerge(DEFAULT_GAME, data);
-        initGame();
+        const migratedState = data.version !== undefined ? data : migrateState(data); // 临时加入
+        state = deepMerge(DEFAULT_GAME, migratedState);
+        initGameOnImport();
         initUI();
         saveGame();
         showNotification("导入成功！", 'success');
@@ -232,13 +238,7 @@ const idHandlers = {
         modal.classList.add('hidden');
     },
     cancelBtn: () => modal.classList.add('hidden'),
-    generatorLocked: unlockGenerator,
-    buyExpUpgradeBtn: () => purchaseUpgrade('exponent'),
-    buyMaxExpUpgradeBtn: () => purchaseUpgrade('exponent', true),
-    buySigUpgradeBtn: () => purchaseUpgrade('sigma'),
-    buyMaxSigUpgradeBtn: () => purchaseUpgrade('sigma', true),
-    buyEssUpgradeBtn: () => purchaseUpgrade('essence'),
-    buyMaxEssUpgradeBtn: () => purchaseUpgrade('essence', true),
+    generatorLocked: unlockGenerator
 };
 
 elements.importFileInput.onchange = (e) => {
@@ -263,6 +263,13 @@ elements.gameContainer.addEventListener('click', (e) => {
         switchPanel(btn.dataset.panel);
     } else if (btn.classList.contains('subtab-btn')) {
         switchSubTab(btn.dataset.subtab);
+    } else if (btn.classList.contains('upgrade-btn') || btn.classList.contains('upgrade-max-btn')) {
+        const isMax = btn.classList.contains('upgrade-max-btn');
+        purchaseUpgrade(btn.dataset.id, isMax);
+    } else if (btn.classList.contains('one-shot-card')) {
+        const type = btn.dataset.type;
+        const index = parseInt(btn.dataset.index);
+        purchaseOneShot(type, index);
     }
 });
 
@@ -271,10 +278,42 @@ input.addEventListener('input', () => {
     input.style.width = input.value.length * 0.75 + 0.25 + 'em';
 });
 
+elements.version.addEventListener('click', () => {
+    versionClickCount++;
+    if (!state.completedHiddenAchievements[1][2] && versionClickCount >= 10) {
+        completeHiddenAchievement(2, 3);
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+    const key = e.key;
+    if (key === 'd' || key === 'D') {
+        e.preventDefault();
+        performDraw();
+    } else if (key === 'r' || key === 'R') {
+        e.preventDefault();
+        performPrestige();
+    }
+});
+
 function initGame() {
+    refreshDrawCooldown();
+    initAchievements();
+}
+
+function initGameOnImport() {
     refreshDrawCooldown();
     elements.hardResetBtn.textContent = '硬重置';
     pendingReset = 0;
+    luckTimer = 0;
+    lastDrawTime = 0;
+    consecutiveBelow2Sigma = 0;
+    saveHistoryTimestamps = [];
+    recentRewards = [];
+    timeSinceLastLckValInc = 0;
     lastStatsViewTimestamp = Date.now();
 }
 
@@ -282,5 +321,4 @@ document.addEventListener('DOMContentLoaded', () => {
     loadGame();
     initGame();
     initUI();
-    initAchievements();
 });
