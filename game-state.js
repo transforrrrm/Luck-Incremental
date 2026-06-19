@@ -7,6 +7,22 @@ const DEFAULT_GAME = {
         luck: new OmegaNum(0),
         sigma: new OmegaNum(0),
         essence: new OmegaNum(0),
+        drawer1: new OmegaNum(0),
+        drawer2: new OmegaNum(0),
+        drawer3: new OmegaNum(0),
+        drawer4: new OmegaNum(0),
+        drawer5: new OmegaNum(0),
+        drawer6: new OmegaNum(0),
+        drawer7: new OmegaNum(0),
+        drawer8: new OmegaNum(0),
+        clicker1: new OmegaNum(0),
+        clicker2: new OmegaNum(0),
+        clicker3: new OmegaNum(0),
+        clicker4: new OmegaNum(0),
+        clicker5: new OmegaNum(0),
+        clicker6: new OmegaNum(0),
+        clicker7: new OmegaNum(0),
+        clicker8: new OmegaNum(0)
     },
     oneShotPurchased: {
         U: [false, false, false, false, false, false, false, false, false]
@@ -19,7 +35,14 @@ const DEFAULT_GAME = {
     luckGeneratorUnlocked: false,
     investedEssence: new OmegaNum(0),
     luckValue: new OmegaNum(0),
+    chanceUpgradeUnlocked: false,
+    
     automationUnlocked: false,
+    clickersUnlocked: false,
+    dimensions: {
+        drawer: [new OmegaNum(0), new OmegaNum(0), new OmegaNum(0), new OmegaNum(0), new OmegaNum(0), new OmegaNum(0), new OmegaNum(0), new OmegaNum(0)],
+        clicker: [new OmegaNum(0), new OmegaNum(0), new OmegaNum(0), new OmegaNum(0), new OmegaNum(0), new OmegaNum(0), new OmegaNum(0), new OmegaNum(0)]
+    },
 
     totalLuckPoints: new OmegaNum(0),
     totalDraws: new OmegaNum(0),
@@ -35,16 +58,18 @@ const DEFAULT_GAME = {
     currentSubTab: { prestige: 'generator', achievements: 'normal' },
     completedAchievements: [
         [false, false, false, false, false, false, false, false],
+        [false, false, false, false, false, false, false, false],
         [false, false, false, false, false, false, false, false]
     ],
     completedHiddenAchievements: [
         [false, false, false, false, false, false, false, false],
-        [false, false, false]
+        [false, false, false, false, false]
     ],
+    maxLuckValue: new OmegaNum(0),
 
     singlePurchaseCount: 0,
 
-    version: '0.1.2'
+    version: '0.1.3'
 };
 
 const SAVE_KEY = 'LuckyIncrementalSave';
@@ -59,8 +84,7 @@ function loadGame() {
     if (!raw) return;
     try {
         const data = convertToOmegaNum(JSON.parse(atob(raw)));
-        const migratedState = data.version !== undefined ? data : migrateState(data); // 临时加入
-        state = deepMerge(DEFAULT_GAME, migratedState);
+        state = deepMerge(DEFAULT_GAME, data);
     } catch (e) {
         console.warn(e);
     }
@@ -114,23 +138,4 @@ function convertToOmegaNum(obj) {
         }
     }
     return obj;
-}
-
-// 临时加入
-function migrateState(oldState) {
-    const newState = {};
-
-    newState.upgradeLevels = {};
-    newState.upgradeLevels.luck = oldState.upgradeExpLevel;
-    newState.upgradeLevels.sigma = oldState.upgradeSigLevel;
-    newState.upgradeLevels.essence = oldState.upgradeEssLevel;
-
-    const excludeKeys = ['upgradeExpLevel', 'expUpgradeUnlocked', 'upgradeSigLevel', 'upgradeEssLevel', 'essUpgradeUnlocked'];
-    for (const key in oldState) {
-        if (!excludeKeys.includes(key)) {
-            newState[key] = oldState[key];
-        }
-    }
-
-    return newState;
 }

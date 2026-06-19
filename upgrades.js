@@ -8,7 +8,7 @@ const UPGRADE_LIST = {
             mult: OmegaNum.pow(1.1, level.add(1)),
             exp: level.add(1)
         }),
-        effectText: (level, effect) => `每次点击增加的幸运乘数^${formatNumber(effect.exp)}`,
+        effectText: (effect) => `每次点击增加的幸运乘数^${formatNumber(effect.exp)}`,
         onBuy: (state) => {
             if (!state.completedAchievements[1][6] && getUpgradeLevel('luck').gte(7447)) { // 恰好大于1.79e308
                 completeAchievement(2, 7);
@@ -24,10 +24,13 @@ const UPGRADE_LIST = {
         baseCost: 1500,
         costType: 'linear',
         effect: (level) => ({ mult: level.add(1).sqrt() }),
-        effectText: (level, effect) => `σ×${formatNumber(effect.mult)}`,
+        effectText: (effect) => `σ×${formatNumber(effect.mult)}`,
         onBuy: (state) => {
             if (!state.completedAchievements[0][3]) completeAchievement(1, 4);
             checkSigma();
+            if (!state.completedAchievements[2][3] && getUpgradeLevel('sigma').gte(1e8)) {
+                completeAchievement(3, 4);
+            }
         },
         containerId: 'sigUpgradeBlock',
         updateTab: 'home'
@@ -39,7 +42,7 @@ const UPGRADE_LIST = {
         costType: 'geometric',
         ratio: 2,
         effect: (level) => ({ mult: OmegaNum.pow(2, level.div(2)) }),
-        effectText: (level, effect) => `σ×${formatNumber(effect.mult)}`,
+        effectText: (effect) => `σ×${formatNumber(effect.mult)}`,
         unlockCondition: 1600,
         displayCondition: (state) => state.hasPrestiged,
         onBuy: (state) => checkSigma(),
@@ -53,7 +56,7 @@ const UPGRADE_LIST = {
     //    costType: 'linear',
     //    ratio: null,
     //    effect: (level) => ({}),
-    //    effectText: (level, effect) => `...`,
+    //    effectText: (effect) => `...`,
     //    unlockCondition: 10,
     //    displayCondition: (state) => true / false,
     //    onBuy: (state) => { },      // 购买后的回调（等级升级）
@@ -208,7 +211,7 @@ function buildUpgradeElement(upgrade, type, index) {
     if (index === undefined) { // 非一次性升级
         const div = `
             <div class="upgrade ${isLocked ? 'locked' : ''} ${isHidden ? 'hidden' : ''}" id="${type}Upgrade">
-                ${isLocked ? `<div class="mask ${theme}">达到${unlockCondition}σ后解锁</div>` : ''}
+                ${isLocked ? `<div class="mask ${theme}">达到${formatNumber(unlockCondition)}σ后解锁</div>` : ''}
                 <div class="upgrade-stat">
                     <div class="upgrade-desc ${theme}">
                         <span class="upgrade-name">${name}(<span class="level-val">0</span>)</span>
@@ -250,7 +253,7 @@ function updateUpgradesUI() {
         const levelSpan = container.querySelector('.level-val');
         levelSpan.textContent = formatNumber(level);
         const effectSpan = container.querySelector('.effect-desc');
-        effectSpan.textContent = upgrade.effectText(level, effect);
+        effectSpan.textContent = upgrade.effectText(effect);
         const costSpan = container.querySelector('.cost-val');
         costSpan.textContent = formatNumber(cost);
 

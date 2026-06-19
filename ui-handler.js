@@ -1,15 +1,23 @@
 function updateUI() {
     elements.luckyEssenceVal.textContent = formatNumber(state.luckyEssence);
-    elements.luckValue.textContent = formatNumber(state.luckPoints);
+    const production = getUpgradeEffect('drawer1').production;
+    const points = state.luckPoints;
+    let rateText = '';
+    if (production.neq(0)) {
+        const dt = production.gte(20) ? 0.05 : production.rec().toNumber();
+        const delta = production.div(20).max(1).mul(autoDrawGain);
+        rateText = formatRate(points, delta, dt);
+    }
+    elements.luckValue.textContent = `${formatNumber(points)}${rateText}`;
     const maxSigma = state.luckiestThisPrestige.value;
     const extraReq = state.oneShotPurchased.U[6] ? 0 : 80;
     const mult = state.oneShotPurchased.U[7] ? 1.3 : 1;
     if (maxSigma.gte(200 + extraReq)) {
         const essenceGain = maxSigma.sub(extraReq).div(200).sqrt().mul(mult).floor();
-        let text = `重置以获得${essenceGain}幸运精华`;
+        let text = `重置以获得${formatNumber(essenceGain)}幸运精华`;
         if (essenceGain.lt(100)) {
             const nextThreshold = essenceGain.add(1).div(mult).pow(2).mul(200).add(extraReq);
-            text += `\n下一个在：${nextThreshold}σ`;
+            text += `\n下一个在：${formatNumber(nextThreshold)}σ`;
         }
         elements.prestigeBtn.textContent = text;
     } else {
@@ -25,8 +33,17 @@ function updateUI() {
             elements.drawBtn.className = cdTime > 0 ? 'draw-btn disabled' : 'draw-btn';
         }
         if (state.luckyUpgradeUnlocked) {
-            elements.luckyFactorVal.textContent = formatNumber(state.luckyFactor);
-            elements.increaseLuckyBtn.textContent = `×${formatNumber(getUpgradeEffect('luck').mult)}`;
+            const production = getUpgradeEffect('clicker1').production;
+            const mult = getUpgradeEffect('luck').mult;
+            let rateText = '';
+            if (production.neq(0)) {
+                const log10L = state.luckyFactor.log10();
+                const dt = production.gte(20) ? 0.05 : production.rec().toNumber();
+                const delta = production.div(20).max(1).mul(mult.log10());
+                rateText = formatRate(log10L, delta, dt, 1);
+            }
+            elements.increaseLuckyBtn.textContent = `×${formatNumber(mult)}`;
+            elements.luckyFactorVal.textContent = `${formatNumber(state.luckyFactor)}${rateText}`;
         }
         if (state.sigUpgradeUnlocked) {
             elements.sigmaVal.textContent = formatNumber(calcSigma());
@@ -34,13 +51,20 @@ function updateUI() {
     }
     if (state.currentTab === 'prestige') {
         if (state.luckGeneratorUnlocked) {
-            elements.investedEssenceVal.textContent = state.investedEssence;
+            elements.investedEssenceVal.textContent = formatNumber(state.investedEssence);
             const val = state.luckValue;
             elements.luckValueDisplay.textContent = formatNumber(val);
             elements.luckValueDecrease.textContent = val.eq(0) ? '' : '(-0.05/s)';
             const e = state.investedEssence;
             const v = state.luckValue;
             elements.luckValueEffect.textContent = `^${formatNumber(e.div(5).add(1).mul(v).add(1))}`;
+            elements.luckValueChance.textContent = `${state.oneShotPurchased.U[8] ? 6 : 5}%`;
+        }
+    }
+    if (state.currentTab === 'automation') {
+        elements.drawerSpeed.textContent = getUpgradeEffect('drawer1').production;
+        if (state.clickersUnlocked) {
+            elements.clickerSpeed.textContent = getUpgradeEffect('clicker1').production;
         }
     }
     if (state.currentTab === 'stats') {
@@ -52,7 +76,7 @@ function updateUI() {
         if (record.recChance.gt(0)) {
             elements.luckiestRecord.textContent = `${formatNumber(record.value)}σ, 1/${formatNumber(record.recChance)}`;
         }
-        elements.luckyFactorDesc.textContent = getLuckyFactorDescription(state.luckyFactor);
+        elements.luckyFactorDesc.innerHTML = getLuckyFactorDescription(state.luckyFactor);
         if (state.hasPrestiged) {
             elements.prestigeCount.textContent = state.prestigeCount;
             elements.totalEssence.textContent = state.totalLuckEssence;
@@ -70,16 +94,30 @@ function updateUI() {
 }
 
 function updateProgressBar() {
-    const maxVal = state.luckiestRecord.value;
-    const threshold = 280;
-    const percent = maxVal.div(threshold).min(1);
-    elements.progressFill.style.width = `${percent.toNumber() * 100}%`;
-    if (state.hasPrestiged) {
+    if (state.automationUnlocked) {
+        elements.progressFill.style.width = '100%';
         elements.progressText.textContent = '所有功能已解锁！';
+    } else if (state.hasPrestiged) {
+        const totalAch = 16;
+        let completed = 0;
+        for (let i = 0; i < 2; i++) {
+            for (let j = 0; j < 8; j++) {
+                if (state.completedAchievements[i][j]) completed++;
+            }
+        }
+        const percent = completed / totalAch;
+        elements.progressFill.style.width = `${percent * 100}%`;
+        elements.progressText.innerHTML = `完成前两行成就以解锁自动化(${formatNumber(percent * 100)}%)`;
     } else {
+        // 未重置，显示解锁推进进度
+        const maxVal = state.luckiestRecord.value;
+        const threshold = 280;
+        const percent = maxVal.div(threshold).min(1);
+        elements.progressFill.style.width = `${percent.toNumber() * 100}%`;
         elements.progressText.innerHTML = `达到280σ以解锁<span class="prestige-dark">推进</span>(${formatNumber(percent.mul(100))}%)`;
     }
 }
+
 
 function renderAchievements() {
     elements.normalAch.innerHTML = '';
@@ -136,13 +174,14 @@ function initUI() {
     }
     if (state.hasPrestiged) {
         elements.luckyEssenceDisplay.classList.remove('hidden');
-        elements.prestigeBtn.classList.remove('hidden');
         elements.prestigeTab.classList.remove('hidden');
         elements.prestigeStat.classList.remove('hidden');
         if (state.luckGeneratorUnlocked) {
             elements.generatorLocked.classList.add('hidden');
             elements.luckGeneratorBlock.classList.remove('hidden');
         }
+        if (state.automationUnlocked) elements.automationTab.classList.remove('hidden');
+        if (state.clickersUnlocked) elements.clickerEffect.classList.remove('hidden');
     }
 
     renderAchievements();
@@ -202,8 +241,21 @@ function getLuckyFactorDescription(L) {
         const k = log10L.div(7.456e6);
         return `你的幸运乘数能让猴子打出 ${formatNumber(k)} 次莎士比亚全集。`;
     }
-
-    const seconds = log10L.div(9e8);
-    const timeStr = formatTime(seconds);
-    return `你的幸运乘数能生成 ${timeStr} 的4K视频。`;
+    if (log10L.lt(2.25e23)) {
+        const seconds = log10L.div(9e8);
+        const timeStr = formatTime(seconds);
+        return `你的幸运乘数能生成 ${timeStr} 的4K视频。`;
+    }
+    if (log10L.lt(3.396e69)) {
+        const length = log10L.div(2.25e35);
+        const lengthStr = formatLength(length);
+        return `你的幸运乘数能让你瞬移 ${lengthStr} 。`;
+    }
+    if (log10L.lt(3.396e72)) {
+        const k = log10L.div(3.396e69);
+        return `你的幸运乘数能让 ${formatNumber(k)} 个Og原子不衰败直到一个恒星质量的黑洞蒸发。`;
+    }
+    const radius = log10L.div(6.558e98).cbrt();
+    const radiusStr = formatLength(radius);
+    return `你的幸运乘数能让半径为 ${radiusStr} 的Og${radius.gte(1e6) ? 气态行星 : 球体}不衰败直到一个恒星质量的黑洞蒸发。`;
 }

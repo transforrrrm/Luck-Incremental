@@ -12,6 +12,11 @@ let state = DEFAULT_GAME;
 let pendingReset = 0;
 let lastDrawTime = 0;
 let luckTimer = 0;
+let autoDrawGain = new OmegaNum(0);
+let dimTimers = {
+    drawer: [0, 0, 0, 0, 0, 0, 0, 0],
+    clicker: [0, 0, 0, 0, 0, 0, 0, 0],
+}
 
 let consecutiveBelow2Sigma = 0;
 let saveHistoryTimestamps = [];
@@ -19,6 +24,7 @@ let lastStatsViewTimestamp = Date.now();
 let recentRewards = [];
 let timeSinceLastLckValInc = 0;
 let versionClickCount = 0;
+let drawClickTimestamps = [];
 
 function updateLuckiestRecord(value, recChance) {
     if (recChance.gt(state.luckiestRecord.recChance)) {
@@ -44,7 +50,7 @@ function trackRecentRewards(reward) {
     }
 }
 
-async function performDraw() {
+function performDraw(isAuto) {
     if (state.drawCooldown !== 0) {
         const now = Date.now();
         if (now - lastDrawTime < state.drawCooldown) return;
@@ -57,32 +63,36 @@ async function performDraw() {
     const { value, recChance } = drawReward(L, e, v);
     checkValue(value);
 
-    const reward = value.mul(calcSigma());
-    const realReward = reward.mul(calcDrawRewardBonus());
+    const production = getUpgradeEffect('drawer1').production;
+    const rawReward = value.mul(calcSigma());
+    const reward = rawReward.mul(calcDrawRewardBonus());
+    const drawSpeed = isAuto ? production.div(20).max(1) : 1;
+    const realReward = reward.mul(drawSpeed);
+
     state.luckPoints = state.luckPoints.add(realReward);
     state.totalLuckPoints = state.totalLuckPoints.add(realReward);
-    state.totalDraws = state.totalDraws.add(1);
-    state.maxSingleReward = state.maxSingleReward.max(realReward);
-    if (!state.completedAchievements[1][2] && reward.gte(114514)) completeAchievement(2, 3);
+    state.totalDraws = state.totalDraws.add(drawSpeed);
+    state.maxSingleReward = state.maxSingleReward.max(reward);
+    if (isAuto) autoDrawGain = realReward;
+    if (!state.completedAchievements[1][2] && rawReward.gte(114514)) completeAchievement(2, 3);
     updateLuckiestRecord(value, recChance);
     if (state.luckGeneratorUnlocked && !state.completedAchievements[1][1]) {
-        trackRecentRewards(reward);
+        trackRecentRewards(rawReward);
     }
 
-    elements.lastDrawDisplay.textContent = `${formatNumber(reward)} (${formatNumber(value)}σ, 1/${formatNumber(recChance)})`;
+    elements.lastDrawDisplay.textContent = `${formatNumber(rawReward)} (${formatNumber(value)}σ, 1/${formatNumber(recChance)})`;
 
-    if (!state.luckyUpgradeUnlocked && value.gte(2)) {
-        state.luckyUpgradeUnlocked = true;
-        elements.luckUpgradeBlock.classList.remove('hidden');
-        elements.luckUpgradeTitle.textContent = '幸运升级';
-    }
-    if (!state.sigUpgradeUnlocked && value.gte(80)) {
-        state.sigUpgradeUnlocked = true;
-        elements.sigUpgradeBlock.classList.remove('hidden');
-        elements.sigmaUpgradeTitle.textContent = '标准差升级';
+    if (!isAuto && production.gt(100)) {
+        const now = Date.now();
+        drawClickTimestamps.push(now);
+        if (drawClickTimestamps.length > 200) drawClickTimestamps.shift();
+        drawClickTimestamps = drawClickTimestamps.filter(t => now - t < 10000);
+        if (!state.completedHiddenAchievements[1][4] && drawClickTimestamps.length === 200) {
+            completeHiddenAchievement(2, 5);
+        }
     }
 
-    updateUI();
+    if (!isAuto) updateUI();
 }
 
 function calcDrawRewardBonus() {
@@ -93,11 +103,12 @@ function calcDrawRewardBonus() {
     return bonus;
 }
 
-function increaseLucky() {
+function increaseLucky(isAuto) {
     const multiplier = getUpgradeEffect('luck').mult;
-    state.luckyFactor = state.luckyFactor.mul(multiplier);
+    const clickSpeed = isAuto ? getUpgradeEffect('clicker1').production.div(20).max(1) : 1;
+    state.luckyFactor = state.luckyFactor.mul(multiplier.pow(clickSpeed));
     checkLuckyFactor();
-    updateUI();
+    if (!isAuto) updateUI();
 }
 
 function calcSigma() {
@@ -125,8 +136,7 @@ function exportJSON() {
 function importJSON(jsonStr) {
     try {
         const data = convertToOmegaNum(JSON.parse(atob(jsonStr)));
-        const migratedState = data.version !== undefined ? data : migrateState(data); // 临时加入
-        state = deepMerge(DEFAULT_GAME, migratedState);
+        state = deepMerge(DEFAULT_GAME, data);
         initGameOnImport();
         initUI();
         saveGame();
@@ -171,10 +181,17 @@ setInterval(() => {
             }
         }
         state.luckValue = state.luckValue.sub(1 / 400).max(0);
+        if (state.oneShotPurchased.U[8] && !state.completedHiddenAchievements[1][3]) {
+            if (state.luckValue.lte(state.maxLuckValue.sub(10))) {
+                completeHiddenAchievement(2, 4);
+            }
+        }
     }
 
     state.gameTime += .05;
     state.timeSincePrestige += .05;
+    processDimension('drawer');
+    processDimension('clicker');
     updateUI();
 }, 50);
 

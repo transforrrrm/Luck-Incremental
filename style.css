@@ -321,9 +321,8 @@ button.prestige.disabled {
     margin-bottom: 1.5cqh;
 }
 
-.luck-gen-eff {
-    color: #2890e0;
-    font-size: 2em;
+.big {
+    font-size: 3.6cqh;
 }
 
 .generator-controls {
@@ -399,6 +398,10 @@ button.one-shot-card.disabled {
     font-size: 1.4em;
     font-family: monospace;
     color: white;
+}
+
+.automation-title {
+    font-size: 2cqh;
 }
 
 .stats-area {

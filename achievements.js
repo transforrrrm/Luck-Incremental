@@ -17,8 +17,18 @@ const ACHIEVEMENTS = [
         { name: '无限猴子定理', desc: '幸运乘数达到e7.456e6。' },
         { name: '推进器', desc: '购买第一个推进升级。' },
         { name: '真·无限幸运', desc: '每次点击增加的幸运乘数超过1.79e308。' },
-        { name: '这玩意已经没用了', desc: '在幸运乘数为1时进行一次推进重置，并获得至少2个精华。\n完成前两行成就后将去除抽取冷却时间。' }
-    ]
+        { name: '这玩意已经没用了', desc: '在幸运乘数为1时进行一次推进重置。\n完成前两行成就后将去除抽取冷却时间。' }
+    ],
+    [
+        { name: '自动纪元', desc: '购买第一个自动抽取器。\n每完成一个第三行中的成就，自动抽取速度×1.1。' },
+        { name: '你不能加自动点击器！', desc: '自动抽取速度达到100/s。' },
+        { name: '你刚才...重置了？', desc: '在0.05s内进行一次推进重置。' },
+        { name: '我就升亿级', desc: '标准差升级达到1e8级。' },
+        { name: '求求你别刷了', desc: '推进20000次。\n奖励：推进次数获取×10。' },
+        { name: '你是一个一个一个', desc: '一次重置获得超过114514幸运精华。' },
+        { name: '8次方增长', desc: '购买第八个自动抽取器。' },
+        { name: '量子隧穿', desc: '幸运乘数达到e2.25e23。\n奖励：在生成器界面解锁一个升级。' } // 目前还没有
+    ],
 ];
 
 const HIDDEN_ACHIEVEMENTS = [
@@ -35,7 +45,9 @@ const HIDDEN_ACHIEVEMENTS = [
     [
         { name: '说明你是入机', descUnfinished: '因为你是入机。', descFinished: '连续80s幸运值没有增加。\n概率：1/60.55, ≈1/e⁴。' },
         { name: '我们应该告诉他购买最大吗...', descUnfinished: '你纯手点的啊？', descFinished: '买10000次单次升级。' },
-        { name: '我们不招募开发者', descUnfinished: '这不是“加入我们”链接。', descFinished: '点10次版本号。' }
+        { name: '我们不招募开发者', descUnfinished: '这不是“加入我们”链接。', descFinished: '点10次版本号。' },
+        { name: '不可能！绝对不可能！', descUnfinished: '说明你是真入机。', descFinished: '在购买U9后，幸运值降低到比购买U9后的最高幸运值还少10。' },
+        { name: '我绝对不关连点器', descUnfinished: '你是不是开会员了？', descFinished: '在自动抽取速度大于100时，10s内点击200次以上抽取按钮。' },
     ]
 ];
 
@@ -48,13 +60,13 @@ function refreshDrawCooldown() {
         state.automationUnlocked = true;
         elements.drawBtn.textContent = '抽取随机数';
         elements.drawBtn.classList.remove('disabled');
+        elements.automationTab.classList.remove('hidden');
     } else {
         const divisor1 = Math.pow(1.1, completedRow1);
         const divisor2 = Math.pow(1.21, completedRow2);
         state.drawCooldown = 1000 / (divisor1 * divisor2);
     }
 }
-
 
 function completeAchievement(row, col) {
     const i = row - 1;
@@ -91,6 +103,10 @@ function checkLuckyFactor() {
     if (!state.completedAchievements[1][4] && state.luckyFactor.gte('e7.456e6')) {
         completeAchievement(2, 5);
     }
+    if (!state.completedAchievements[2][7] && state.luckyFactor.gte('e2.25e23')) {
+        completeAchievement(3, 8);
+        state.chanceUpgradeUnlocked = true;
+    }
 }
 
 function checkSigma() {
@@ -116,6 +132,21 @@ function checkValue(value) {
     if (!state.completedAchievements[0][4] && value.gte(100)) completeAchievement(1, 5);
     if (!state.completedAchievements[1][3] && value.gte(10) && state.luckyFactor.lt(10)) {
         completeAchievement(2, 4);
+    }
+
+    if (!state.luckyUpgradeUnlocked && value.gte(2)) {
+        state.luckyUpgradeUnlocked = true;
+        elements.luckUpgradeBlock.classList.remove('hidden');
+        elements.luckUpgradeTitle.textContent = '幸运升级';
+    }
+    if (!state.sigUpgradeUnlocked && value.gte(80)) {
+        state.sigUpgradeUnlocked = true;
+        elements.sigUpgradeBlock.classList.remove('hidden');
+        elements.sigmaUpgradeTitle.textContent = '标准差升级';
+    }
+    if (!state.clickersUnlocked && value.gte(1e9)) {
+        state.clickersUnlocked = true;
+        elements.clickerEffect.classList.remove('hidden');
     }
 }
 

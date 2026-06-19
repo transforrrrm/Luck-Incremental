@@ -125,7 +125,7 @@ function formatNumber(num) {
             const formattedA = aNum.toFixed(decimals);
             const newAeb = `${formattedA}e${b}`;
             return str.replace(fullMatch, newAeb);
-        }t
+        }
     }
     if (num.gte(10000) || num.eq(0)) return num.toFixed(0);
     if (num.gte(1)) return parseFloat(num.toPrecision(5));
@@ -155,7 +155,8 @@ function formatTime(t) {
     return t.gt(0) ? `${formatNumber(t)}s` : ''
 }
 
-function formatRate(value, delta, dt = 0.05) {
+function formatRate(value, delta, dt = 0.05, extraLayer = 0) {
+    if (delta.eq(0)) return '';
     const newValue = value.add(delta);
 
     if (newValue.neq(value)) {
@@ -163,7 +164,7 @@ function formatRate(value, delta, dt = 0.05) {
             const slogNew = newValue.slog();
             const slog = value.slog();
             const slogRate = slogNew.sub(slog).div(dt);
-            if (slogRate.gte(0.01)) return `+${formatNumber(slogRate)}OoM^OoM/s`;
+            if (slogRate.gte(0.01)) return `(+${formatNumber(slogRate)}OoM^OoM/s)`;
         }
 
         if (newValue.gte(1e100)) {
@@ -188,12 +189,57 @@ function formatRate(value, delta, dt = 0.05) {
                 rateLog = deltaLog.div(dt);
                 layer = layer.sub(1);
             }
-            return `+${formatNumber(rateLog)}OoM${layer.eq(1) ? '' : `^${layer}`}/s`;
+            return generateRateText(rateLog, layer.add(extraLayer));
         }
     }
 
     const rate = delta.div(dt);
-    return `+${formatNumber(rate)}/s`;
+    return generateRateText(rate, extraLayer);
+}
+
+function generateRateText(rate, layer) {
+    if (!(layer instanceof OmegaNum)) layer = new OmegaNum(layer);
+    return `(+${formatNumber(rate)}${layer.eq(0) ? '' : `OoM${layer.eq(1) ? '' : `^${layer}`}`}/s)`
+}
+
+const LENGTH_UNITS = [
+    { unit: "普朗克长度", value: 1.616255e-35 },
+    { unit: "ym", value: 1e-24 },
+    { unit: "zm", value: 1e-21 },
+    { unit: "am", value: 1e-18 },
+    { unit: "fm", value: 1e-15 },
+    { unit: "pm", value: 1e-12 },
+    { unit: "nm", value: 1e-9 },
+    { unit: "μm", value: 1e-6 },
+    { unit: "mm", value: 1e-3 },
+    { unit: "m", value: 1 },
+    { unit: "km", value: 1e3 },
+    { unit: "Mm", value: 1e6 },
+    { unit: "Gm", value: 1e9 },
+    { unit: "Tm", value: 1e12 },
+    { unit: "Pm", value: 1e1 },
+    { unit: "ly", value: 9.461e15 },
+    { unit: "pc", value: 3.086e16 },
+    { unit: "kpc", value: 3.086e19 },
+    { unit: "Mpc", value: 3.086e22 },
+    { unit: "Gpc", value: 3.086e25 },
+    { unit: "uni", value: 8.8e26 }
+];
+
+function getCurrentLengthUnit(number) {
+    for (let i = LENGTH_UNITS.length - 1; i >= 0; i--) {
+        if (number.gte(LENGTH_UNITS[i].value)) {
+            return LENGTH_UNITS[i];
+        }
+    }
+    return LENGTH_UNITS[0];
+}
+
+function formatLength(length, dimension = 1) {
+    if (!(length instanceof OmegaNum)) length = new OmegaNum(length);
+    const lengthUnit = getCurrentLengthUnit(length.pow(1 / dimension));
+    const lengthValue = length.div(lengthUnit.value.pow(dimension));
+    return `${formatNumber(lengthValue, lengthUnit.unit)}<sup>${dimension === 1 ? '' : dimension}</sup>`;
 }
 
 // 截断抽样：从半正态分布的顶部 1/L 部分抽取

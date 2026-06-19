@@ -5,18 +5,28 @@ function performPrestige() {
     if (maxSigma.lt(200 + extraReq)) return;
     const essenceGain = maxSigma.sub(extraReq).div(200).sqrt().mul(mult).floor();
     state.luckyEssence = state.luckyEssence.add(essenceGain);
-    state.totalLuckEssence = state.totalLuckEssence.add(essenceGain);;
+    state.totalLuckEssence = state.totalLuckEssence.add(essenceGain);
     state.maxSingleEssence = state.maxSingleEssence.max(essenceGain);
-    state.prestigeCount = state.prestigeCount.add(1);
+    const prestigeCount = state.completedAchievements[2][4] ? 10 : 1;
+    state.prestigeCount = state.prestigeCount.add(prestigeCount);
 
     const duration = state.timeSincePrestige;
     if (duration < state.fastestPrestige) state.fastestPrestige = duration;
     if (duration < 60 && !state.completedAchievements[1][0]) {
         completeAchievement(2, 1);
     }
+    if (duration < .05 && !state.completedAchievements[2][2]) {
+        completeAchievement(3, 3);
+    }
     if (!state.completedAchievements[0][6]) completeAchievement(1, 7);
-    if (!state.completedAchievements[1][7] && state.luckyFactor.eq(1) && essenceGain.gte(2)) {
+    if (!state.completedAchievements[1][7] && state.luckyFactor.eq(1)) {
         completeAchievement(2, 8);
+    }
+    if (!state.completedAchievements[2][4] && state.prestigeCount.gte(20000)) {
+        completeAchievement(3, 5);
+    }
+    if (!state.completedAchievements[2][5] && essenceGain.gte(114514)) {
+        completeAchievement(3, 6);
     }
 
     state.luckPoints = new OmegaNum(0);
@@ -28,7 +38,6 @@ function performPrestige() {
     if (!state.hasPrestiged) {
         state.hasPrestiged = true;
         elements.luckyEssenceDisplay.classList.remove('hidden');
-        elements.prestigeBtn.classList.remove('hidden');
         elements.prestigeTab.classList.remove('hidden');
         elements.prestigeStat.classList.remove('hidden');
     }
@@ -57,5 +66,8 @@ function generateLuckVal() {
         state.luckValue = state.luckValue.add(1);
         timeSinceLastLckValInc = 0;
         if (state.luckValue.gte(5) && !state.completedAchievements[0][7]) completeAchievement(1, 8);
+        if (state.oneShotPurchased[8]) {
+            state.maxLuckValue = state.luckValue.max(state.maxLuckValue);
+        }
     }
 }
