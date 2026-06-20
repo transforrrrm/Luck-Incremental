@@ -145,6 +145,9 @@ const ONE_SHOT_UPGRADES = {
             resource: 'luckyEssence',
             cost: 3000,
             desc: '每秒增加幸运值的概率+1%',
+            onPurchase: (state) => {
+                state.maxLuckValue = state.luckValue;
+            },
             containerId: 'boostUpgradeBlock',
             updateTab: 'prestige',
             updateSubTab: 'upgrades'

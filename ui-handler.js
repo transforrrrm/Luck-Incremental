@@ -5,8 +5,7 @@ function updateUI() {
     let rateText = '';
     if (production.neq(0)) {
         const dt = production.gte(20) ? 0.05 : production.rec().toNumber();
-        const delta = production.div(20).max(1).mul(autoDrawGain);
-        rateText = formatRate(points, delta, dt);
+        rateText = formatRate(points, autoDrawGain, dt);
     }
     elements.luckValue.textContent = `${formatNumber(points)}${rateText}`;
     const maxSigma = state.luckiestThisPrestige.value;

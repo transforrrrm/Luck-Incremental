@@ -36,7 +36,7 @@ const DEFAULT_GAME = {
     investedEssence: new OmegaNum(0),
     luckValue: new OmegaNum(0),
     chanceUpgradeUnlocked: false,
-    
+
     automationUnlocked: false,
     clickersUnlocked: false,
     dimensions: {
@@ -63,9 +63,10 @@ const DEFAULT_GAME = {
     ],
     completedHiddenAchievements: [
         [false, false, false, false, false, false, false, false],
-        [false, false, false, false, false]
+        [false, false, false, false, false, false]
     ],
     maxLuckValue: new OmegaNum(0),
+    hasLuckValueExceeded40: false,
 
     singlePurchaseCount: 0,
 
@@ -120,7 +121,11 @@ function deepMerge(target, source) {
         return result;
     }
 
-    return source;
+    if (typeof source === typeof target) {
+        return source;
+    } else {
+        return target;
+    }
 }
 
 function isOmegaNumObject(obj) {

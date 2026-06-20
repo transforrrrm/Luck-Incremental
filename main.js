@@ -74,10 +74,10 @@ function performDraw(isAuto) {
     state.totalDraws = state.totalDraws.add(drawSpeed);
     state.maxSingleReward = state.maxSingleReward.max(reward);
     if (isAuto) autoDrawGain = realReward;
-    if (!state.completedAchievements[1][2] && rawReward.gte(114514)) completeAchievement(2, 3);
+    if (!state.completedAchievements[1][2] && reward.gte(114514)) completeAchievement(2, 3);
     updateLuckiestRecord(value, recChance);
     if (state.luckGeneratorUnlocked && !state.completedAchievements[1][1]) {
-        trackRecentRewards(rawReward);
+        trackRecentRewards(reward);
     }
 
     elements.lastDrawDisplay.textContent = `${formatNumber(rawReward)} (${formatNumber(value)}σ, 1/${formatNumber(recChance)})`;
@@ -185,6 +185,9 @@ setInterval(() => {
             if (state.luckValue.lte(state.maxLuckValue.sub(10))) {
                 completeHiddenAchievement(2, 4);
             }
+        }
+        if (state.hasLuckValueExceeded40 && state.luckValue.eq(0) && !state.completedHiddenAchievements[1][5]) {
+            completeHiddenAchievement(2, 6);
         }
     }
 

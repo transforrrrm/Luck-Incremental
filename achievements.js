@@ -48,6 +48,7 @@ const HIDDEN_ACHIEVEMENTS = [
         { name: '我们不招募开发者', descUnfinished: '这不是“加入我们”链接。', descFinished: '点10次版本号。' },
         { name: '不可能！绝对不可能！', descUnfinished: '说明你是真入机。', descFinished: '在购买U9后，幸运值降低到比购买U9后的最高幸运值还少10。' },
         { name: '我绝对不关连点器', descUnfinished: '你是不是开会员了？', descFinished: '在自动抽取速度大于100时，10s内点击200次以上抽取按钮。' },
+        { name: '大起大落', descUnfinished: '你的人生充满戏剧性。', descFinished: '幸运值超过40后掉回0。' } // 这是我亲身经历啊!
     ]
 ];
 

@@ -66,8 +66,11 @@ function generateLuckVal() {
         state.luckValue = state.luckValue.add(1);
         timeSinceLastLckValInc = 0;
         if (state.luckValue.gte(5) && !state.completedAchievements[0][7]) completeAchievement(1, 8);
-        if (state.oneShotPurchased[8]) {
+        if (state.oneShotPurchased.U[8]) {
             state.maxLuckValue = state.luckValue.max(state.maxLuckValue);
+        }
+        if (state.luckValue.gte(40)) {
+            state.hasLuckValueExceeded40 = true;
         }
     }
 }
