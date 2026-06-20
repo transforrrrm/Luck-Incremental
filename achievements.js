@@ -26,7 +26,7 @@ const ACHIEVEMENTS = [
         { name: '我就升亿级', desc: '标准差升级达到1e8级。' },
         { name: '求求你别刷了', desc: '推进20000次。\n奖励：推进次数获取×10。' },
         { name: '你是一个一个一个', desc: '一次重置获得超过114514幸运精华。' },
-        { name: '8次方增长', desc: '购买第八个自动抽取器。' },
+        { name: '7次方增长', desc: '购买第八个自动抽取器。' },
         { name: '量子隧穿', desc: '幸运乘数达到e2.25e23。\n奖励：在生成器界面解锁一个升级。' } // 目前还没有
     ],
 ];
@@ -145,7 +145,7 @@ function checkValue(value) {
         elements.sigUpgradeBlock.classList.remove('hidden');
         elements.sigmaUpgradeTitle.textContent = '标准差升级';
     }
-    if (!state.clickersUnlocked && value.gte(1e9)) {
+    if (!state.clickersUnlocked && value.gte(1e100)) { // 约1e14. 没调好
         state.clickersUnlocked = true;
         elements.clickerEffect.classList.remove('hidden');
     }

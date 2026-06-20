@@ -8,7 +8,7 @@ const UPGRADE_LIST = {
             mult: OmegaNum.pow(1.1, level.add(1)),
             exp: level.add(1)
         }),
-        effectText: (effect) => `每次点击增加的幸运乘数^${formatNumber(effect.exp)}`,
+        effectText: (effect) => `幸运乘数按钮效果^${formatNumber(effect.exp)}`,
         onBuy: (state) => {
             if (!state.completedAchievements[1][6] && getUpgradeLevel('luck').gte(7447)) { // 恰好大于1.79e308
                 completeAchievement(2, 7);
@@ -170,7 +170,7 @@ const ONE_SHOT_UPGRADES = {
 
 const resources = {
     luckPoints: { resourceName: '幸运点', theme: '' },
-    luckyEssence: { resourceName: '幸运精华', theme: 'prestige' }
+    luckyEssence: { resourceName: '精华', theme: 'prestige' }
 };
 
 function calcDivisors(type) {

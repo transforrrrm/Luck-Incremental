@@ -322,10 +322,12 @@ document.addEventListener('keydown', (e) => {
 function initGame() {
     refreshDrawCooldown();
     initAchievements();
+    state.version = DEFAULT_GAME.version;
 }
 
 function initGameOnImport() {
     refreshDrawCooldown();
+    state.version = DEFAULT_GAME.version;
     elements.hardResetBtn.textContent = '硬重置';
     pendingReset = 0;
     luckTimer = 0;

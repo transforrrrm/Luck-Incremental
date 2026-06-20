@@ -12,6 +12,8 @@ body {
 }
 
 .game-container {
+    display: flex;
+    flex-direction: column;
     background-color: #333;
     position: absolute;
     width: 100vw;
@@ -106,12 +108,18 @@ body {
 }
 
 .panel {
+    flex: 1;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     font-size: 1.5cqh;
     margin-top: 1cqh;
     color: #f0f3f8;
+}
+
+.panel:not(:has(.subtab)) {
+    overflow-y: auto;
 }
 
 .draw-btn {
@@ -450,9 +458,17 @@ button.one-shot-card.disabled {
 }
 
 .subtab {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+#achievementsPanel .subtab {
+    margin-top: -6cqh;
+    padding-top: 6cqh;
 }
 
 .ach-card {
@@ -697,6 +713,21 @@ textarea {
     bottom: 4cqh;
     left: 50%;
     transform: translateX(-50%);
+}
+
+::-webkit-scrollbar {
+    width: 0.6cqh;
+}
+::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 0.3cqh;
+}
+::-webkit-scrollbar-thumb {
+    background: #ffd966;
+    border-radius: 0.3cqh;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ffb347;
 }
 
 .hidden {

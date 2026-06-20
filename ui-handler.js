@@ -77,9 +77,9 @@ function updateUI() {
         }
         elements.luckyFactorDesc.innerHTML = getLuckyFactorDescription(state.luckyFactor);
         if (state.hasPrestiged) {
-            elements.prestigeCount.textContent = state.prestigeCount;
-            elements.totalEssence.textContent = state.totalLuckEssence;
-            elements.maxSingleEssence.textContent = state.maxSingleEssence;
+            elements.prestigeCount.textContent = formatNumber(state.prestigeCount);
+            elements.totalEssence.textContent = formatNumber(state.totalLuckEssence);
+            elements.maxSingleEssence.textContent = formatNumber(state.maxSingleEssence);
             elements.fastestPrestige.textContent = formatTime(new OmegaNum(state.fastestPrestige));
             const record = state.luckiestThisPrestige;
             if (state.luckiestThisPrestige.recChance.gt(0)) {
