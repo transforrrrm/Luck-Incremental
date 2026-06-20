@@ -61,9 +61,9 @@ function updateUI() {
         }
     }
     if (state.currentTab === 'automation') {
-        elements.drawerSpeed.textContent = getUpgradeEffect('drawer1').production;
+        elements.drawerSpeed.textContent = formatNumber(getUpgradeEffect('drawer1').production);
         if (state.clickersUnlocked) {
-            elements.clickerSpeed.textContent = getUpgradeEffect('clicker1').production;
+            elements.clickerSpeed.textContent = formatNumber(getUpgradeEffect('clicker1').production);
         }
     }
     if (state.currentTab === 'stats') {

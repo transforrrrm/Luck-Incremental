@@ -152,7 +152,7 @@ function formatTime(t) {
         const m = t.div(60).floor()
         return `${formatNumber(m)}m ${formatTime(t.mod(60))}`;
     }
-    return t.gt(0) ? `${formatNumber(t)}s` : ''
+    return `${formatNumber(t)}s`;
 }
 
 function formatRate(value, delta, dt = 0.05, extraLayer = 0) {
