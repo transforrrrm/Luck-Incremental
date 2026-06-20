@@ -188,7 +188,7 @@ function calcDivisors(type) {
 function renderAllUpgrades() {
     Object.entries(UPGRADE_LIST).forEach(([id, upgrade]) => {
         const container = elements[upgrade.containerId];
-        if (!container.querySelector(`#${id}`)) {
+        if (!container.querySelector(`#${id}Upgrade`)) {
             const elem = buildUpgradeElement(upgrade, id);
             container.insertAdjacentHTML('beforeend', elem);
         }
