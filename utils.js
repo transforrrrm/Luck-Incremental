@@ -90,6 +90,7 @@ function erfcinv_asymptotic(neglnx) {
 const EXP_FORMAT_PATTERN = /(\d*\.?\d+)?(e)([+-]?\d*\.?\d+)$/;
 function formatNumber(num) {
     if (!(num instanceof OmegaNum)) num = new OmegaNum(num);
+    if (num.lt(0)) return `-${formatNumber(num.neg())}`;
     if (num.gte(1e6)) {
         const str = num.toStringWithDecimalPlaces(6, true);
         const match = str.match(EXP_FORMAT_PATTERN);
@@ -131,6 +132,62 @@ function formatNumber(num) {
     if (num.gte(1)) return parseFloat(num.toPrecision(5));
     if (num.gte(.01)) return parseFloat(num.toFixed(4));
     return num.toExponential(3);
+}
+
+const PRECISION = [20, 13, 10, 9, 8, 8, 7, 7]
+
+function toOrdinal(num, base) {
+    if (!(num instanceof OmegaNum)) num = new OmegaNum(num);
+    if (!(base instanceof OmegaNum)) base = new OmegaNum(base);
+    if (num.eq(0)) return '0';
+
+    const numLog = num.logBase(base).floor();
+    let precision;
+    if (numLog.gt(1e9)) precision = 0;
+     if (base.lt('ee6')) {
+        if (numLog.gt(1e6)) precision = 1;
+        else if (base.lt(10)) precision = PRECISION[base.toNumber() - 2];
+        else if (base.lt(16)) precision = 6;
+        else if (base.lt(32)) precision = 5;
+        else if (base.lt(100)) precision = 4;
+        else if (base.lt(1000)) precision = 3;
+        else if (base.lt(1000000)) precision = 2;
+        else precision = 1;
+
+        if (numLog.gt(1e5)) precision = Math.ceil(precision / 4);
+        else if (numLog.gt(1e4)) precision = Math.ceil(precision / 3);
+        else if (numLog.gt(1e3)) precision = Math.ceil(precision / 2);
+    }
+    else precision = 0;
+
+    const terms = [];
+    let current = num;
+
+    while (current.gt(0)) {
+        const exp = current.logBase(base).floor();
+        if (numLog.sub(exp).gt(precision)) break;
+
+        const basePow = base.pow(exp);
+        const coeff = current.div(basePow).floor();
+
+        let term = '';
+        if (exp.eq(0)) {
+            term = formatNumber(coeff);
+        } else if (exp.eq(1)) {
+            term = coeff.eq(1) ? 'ω' : `ω${formatNumber(coeff)}`;
+        } else {
+            const expStr = toOrdinal(exp, base);
+            term = coeff.eq(1) ? `ω<sup>${expStr}</sup>` : `ω<sup>${expStr}</sup>${formatNumber(coeff)}`;
+        }
+        terms.push(term);
+
+        current = current.mod(basePow);
+    }
+
+    if (current.gt(0)) {
+        terms.push('…');
+    }
+    return terms.join(' + ');
 }
 
 function formatTime(t) {
@@ -217,7 +274,7 @@ const LENGTH_UNITS = [
     { unit: "Mm", value: 1e6 },
     { unit: "Gm", value: 1e9 },
     { unit: "Tm", value: 1e12 },
-    { unit: "Pm", value: 1e1 },
+    { unit: "Pm", value: 1e15 },
     { unit: "ly", value: 9.461e15 },
     { unit: "pc", value: 3.086e16 },
     { unit: "kpc", value: 3.086e19 },
@@ -238,14 +295,13 @@ function getCurrentLengthUnit(number) {
 function formatLength(length, dimension = 1) {
     if (!(length instanceof OmegaNum)) length = new OmegaNum(length);
     const lengthUnit = getCurrentLengthUnit(length.pow(1 / dimension));
-    const lengthValue = length.div(lengthUnit.value.pow(dimension));
-    return `${formatNumber(lengthValue, lengthUnit.unit)}<sup>${dimension === 1 ? '' : dimension}</sup>`;
+    const lengthValue = length.div(OmegaNum.pow(lengthUnit.value, dimension));
+    return `${formatNumber(lengthValue)}${lengthUnit.unit}<sup>${dimension === 1 ? '' : dimension}</sup>`;
 }
 
 // 截断抽样：从半正态分布的顶部 1/L 部分抽取
 const SQRT2 = Math.sqrt(2);
-function drawReward(L, e = new OmegaNum(0), v = new OmegaNum(0)) {
-    const exp = e.div(5).add(1).mul(v).add(1);
+function drawReward(L, exp = 1) {
     let recChance = L.mul(L.lt('ee6') ? 1 / Math.max(Math.random(), Math.pow(2, -53)) : 1).pow(exp);
     let value;
     if (recChance.gte(1e100)) value = erfcinv_asymptotic(recChance.ln()).mul(SQRT2);

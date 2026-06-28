@@ -111,6 +111,7 @@ body {
     flex: 1;
     width: 100%;
     display: flex;
+    min-height: 0;
     flex-direction: column;
     align-items: center;
     font-size: 1.5cqh;
@@ -120,6 +121,7 @@ body {
 
 .panel:not(:has(.subtab)) {
     overflow-y: auto;
+    margin-bottom: 6cqh;
 }
 
 .draw-btn {
@@ -318,7 +320,7 @@ button.prestige.disabled {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 1cqh;
+    margin: 1cqh 0;
     gap: 0.5cqh;
     font-size: 1.8cqh;
 }
@@ -465,6 +467,7 @@ button.one-shot-card.disabled {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 6cqh;
 }
 
 #achievementsPanel .subtab {
@@ -717,18 +720,9 @@ textarea {
 }
 
 ::-webkit-scrollbar {
-    width: 0.6cqh;
-}
-::-webkit-scrollbar-track {
-    background: #1a1a1a;
-    border-radius: 0.3cqh;
-}
-::-webkit-scrollbar-thumb {
-    background: #ffd966;
-    border-radius: 0.3cqh;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #ffb347;
+    width: 0;
+    height: 0;
+    background: transparent;
 }
 
 .hidden {

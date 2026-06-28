@@ -57,7 +57,11 @@ function updateUI() {
             const e = state.investedEssence;
             const v = state.luckValue;
             elements.luckValueEffect.textContent = `^${formatNumber(e.div(5).add(1).mul(v).add(1))}`;
-            elements.luckValueChance.textContent = `${state.oneShotPurchased.U[8] ? 6 : 5}%`;
+            const prob = calcLuckValProb();
+            let probText;
+            if (prob.lte(1)) probText = `${formatNumber(prob.mul(100))}%`;
+            else probText = formatNumber(prob);
+            elements.luckValueChance.textContent = probText;
         }
     }
     if (state.currentTab === 'automation') {
@@ -245,16 +249,21 @@ function getLuckyFactorDescription(L) {
         const timeStr = formatTime(seconds);
         return `你的幸运乘数能生成 ${timeStr} 的4K视频。`;
     }
-    if (log10L.lt(3.396e69)) {
+    if (log10L.lt(1.071e77)) {
         const length = log10L.div(2.25e35);
         const lengthStr = formatLength(length);
         return `你的幸运乘数能让你瞬移 ${lengthStr} 。`;
     }
-    if (log10L.lt(3.396e72)) {
-        const k = log10L.div(3.396e69);
-        return `你的幸运乘数能让 ${formatNumber(k)} 个Og原子不衰败直到一个恒星质量的黑洞蒸发。`;
+    if (log10L.lt(1.071e80)) {
+        const k = log10L.div(1.071e77);
+        return `你的幸运乘数能让 ${formatNumber(k)} 个Og原子不衰变直到一个恒星质量的黑洞蒸发。`;
     }
-    const radius = log10L.div(6.558e98).cbrt();
+    if (log10L.lt(1e190)) {
+        const radius = log10L.div(2.068e106).cbrt();
+        const radiusStr = formatLength(radius);
+        return `你的幸运乘数能让半径为 ${radiusStr} 的Og${radius.gte(1e6) ? 气态行星 : 球体}不衰变直到一个恒星质量的黑洞蒸发。`;
+    }
+    const radius = log10L.div(3.806e28).pow(1 / 12);
     const radiusStr = formatLength(radius);
-    return `你的幸运乘数能让半径为 ${radiusStr} 的Og${radius.gte(1e6) ? 气态行星 : 球体}不衰败直到一个恒星质量的黑洞蒸发。`;
+    return `你的幸运乘数能让半径为 ${radiusStr} 的Og气态行星不衰变直到一个与其质量相同的黑洞蒸发。`;
 }

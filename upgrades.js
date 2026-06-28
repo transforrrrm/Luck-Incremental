@@ -48,6 +48,19 @@ const UPGRADE_LIST = {
         onBuy: (state) => checkSigma(),
         containerId: 'sigUpgradeBlock',
         updateTab: 'home'
+    },
+    chance: {
+        name: '概率升级',
+        resource: 'luckyEssence',
+        baseCost: 1e8,
+        costType: 'geometric',
+        ratio: 10,
+        effect: (level) => ({ chance: level.mul(0.01) }),
+        effectText: (effect) => `幸运值增加概率+${formatNumber(effect.chance)}`,
+        displayCondition: (state) => state.chanceUpgradeUnlocked,
+        containerId: 'genUpgradeBlock',
+        updateTab: 'prestige',
+        updateSubTab: 'generator'
     }
     //luck: {
     //    name: '幸运升级',
@@ -324,7 +337,7 @@ function purchaseUpgrade(id, isMax = false) {
 
     let k = isMax ? maxBuyableUpgrades(upgrade, id, currentLevel, resource) : new OmegaNum(1);
     const totalCost = getTotalCost(upgrade, id, currentLevel, k);
-    state[upgrade.resource] = resource.sub(totalCost);
+    state[upgrade.resource] = resource.sub(totalCost).max(0);
     setUpgradeLevel(id, currentLevel.add(k));
     if (upgrade.onBuy) upgrade.onBuy(state);
     if (!isMax) {
@@ -411,11 +424,10 @@ function maxBuyableUpgrades(cfg, id, currentLevel, resource) {
         // 总成本公式：sum_{i=0}^{k-1} (L+i+1)*baseCost = baseCost * (k*(2L + k + 1)/2)
         // 解二次方程：k^2 + (2L+1)k - 2P/baseCost <= 0
         const b = L.mul(2).add(1);
-        const c = x.mul(2).div(baseCost).neg();
-        // 判别式 Δ = b^2 - 4ac
-        const discriminant = b.mul(b).sub(c.mul(4));
-        const sqrtD = discriminant.sqrt();
-        const k = sqrtD.sub(b).div(2).floor();
+        const c = x.mul(2).div(baseCost);
+        // 判别式 Δ = b^2 + 4c
+        const sqrtD = b.mul(b).add(c.mul(4)).sqrt();
+        const k = c.mul(2).div(b.add(sqrtD)).floor();
         return k;
     }
 }

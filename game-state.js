@@ -7,6 +7,7 @@ const DEFAULT_GAME = {
         luck: new OmegaNum(0),
         sigma: new OmegaNum(0),
         essence: new OmegaNum(0),
+        chance: new OmegaNum(0),
         drawer1: new OmegaNum(0),
         drawer2: new OmegaNum(0),
         drawer3: new OmegaNum(0),
@@ -59,11 +60,12 @@ const DEFAULT_GAME = {
     completedAchievements: [
         [false, false, false, false, false, false, false, false],
         [false, false, false, false, false, false, false, false],
+        [false, false, false, false, false, false, false, false],
         [false, false, false, false, false, false, false, false]
     ],
     completedHiddenAchievements: [
         [false, false, false, false, false, false, false, false],
-        [false, false, false, false, false, false]
+        [false, false, false, false, false, false, false]
     ],
     maxLuckValue: new OmegaNum(0),
     hasLuckValueExceeded40: false,

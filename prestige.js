@@ -61,8 +61,7 @@ function investEssence(amount) {
 }
 
 function generateLuckVal() {
-    const prob = state.oneShotPurchased.U[8] ? .06 : .05;
-    if (Math.random() < prob) {
+    if (Math.random() < calcLuckValProb()) {
         state.luckValue = state.luckValue.add(1);
         timeSinceLastLckValInc = 0;
         if (state.luckValue.gte(5) && !state.completedAchievements[0][7]) completeAchievement(1, 8);
@@ -73,4 +72,9 @@ function generateLuckVal() {
             state.hasLuckValueExceeded40 = true;
         }
     }
+}
+
+function calcLuckValProb() {
+    const baseProb = state.oneShotPurchased.U[8] ? .06 : .05;
+    return getUpgradeEffect('chance').chance.add(baseProb);
 }

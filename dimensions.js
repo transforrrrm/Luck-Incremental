@@ -1,7 +1,7 @@
-const DRAWER_BASE_COST = [1, 1e4, 1e5, 1e7, 1e100, 1e11, 1e13, 1e15]; // 约1e9. 价格没调好
+const DRAWER_BASE_COST = [1, 1e4, 1e5, 1e7, 1e9, 1e11, 1e13, 1e15];
 const DRAWER_COST_SCALING = [1e3, 1e4, 1e5, 1e6, 1e8, 1e10, 1e12, 1e15];
-const CLICKER_UNLOCK = [1e100, 1e16, 1e19, 1e23, 1e28, 1e34, 1e41, 1e49]; // 约1e14. 没调好
-const CLICKER_BASE_COST = [1e10, 1e10, 1e10, 1e10, 1e10, 1e10, 1e10, 1e10];
+const CLICKER_UNLOCK = [1e30, 1e66, 1e69, 1e73, 1e78, 1e84, 1e91, 1e99];
+const CLICKER_BASE_COST = [1e17, 1e10, 1e10, 1e10, 1e10, 1e10, 1e10, 1e10];
 const CLICKER_COST_SCALING = [1e3, 1e6, 1e8, 1e10, 1e15, 1e20, 1e25, 1e30];
 
 function createDimUpgrade(type, index) {

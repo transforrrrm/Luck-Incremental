@@ -58,9 +58,8 @@ function performDraw(isAuto) {
     }
 
     const L = state.luckyFactor;
-    const e = state.investedEssence;
-    const v = state.luckValue;
-    const { value, recChance } = drawReward(L, e, v);
+    const exp = state.investedEssence.div(5).add(1).mul(state.luckValue).add(1);
+    const { value, recChance } = drawReward(L, exp);
     checkValue(value);
 
     const production = getUpgradeEffect('drawer1').production;
